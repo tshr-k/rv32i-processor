@@ -5,6 +5,7 @@ tests=(
     alu
     controller
     immediate_decoder
+    register_file
 )
 
 for test in "${tests[@]}"; do

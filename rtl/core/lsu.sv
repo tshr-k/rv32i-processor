@@ -3,8 +3,8 @@ module lsu
     import lsu_pkg::*;
 (
     input  word_t       addr,
-    input  word_t       read_data,
-    input  word_t       write_data,
+    input  word_t       read_data_raw,
+    input  word_t       write_data_in,
     input  memory_op_t  memory_op,
 
     output logic [31:2] word_addr,
@@ -22,8 +22,8 @@ module lsu
     assign word_addr   = addr[31:2];
     assign byte_offset = addr[1:0];
     
-    assign read_byte      = read_data[8*int'(byte_offset)     +: 8];
-    assign read_half_word = read_data[16*int'(byte_offset[1]) +: 16];    
+    assign read_byte      = read_data_raw[8*int'(byte_offset)     +: 8];
+    assign read_half_word = read_data_raw[16*int'(byte_offset[1]) +: 16];    
 
     assign write_en = (memory_op inside {
         MEM_SB,
@@ -38,9 +38,9 @@ module lsu
                            || (memory_op == MEM_SW && |addr[1:0]);
 
     always_comb begin
-        write_data_out    = write_data;
+        write_data_out    = write_data_in;
         write_strobe      = 4'b0000;
-        read_data_strobed = read_data;
+        read_data_strobed = read_data_raw;
 
         unique case (memory_op)
             MEM_LB:
@@ -52,17 +52,19 @@ module lsu
             MEM_LHU:
                 read_data_strobed = word_t'(read_half_word);
             MEM_LW:
-                read_data_strobed = read_data;
+                read_data_strobed = read_data_raw;
             MEM_SB: begin
-                write_data_out = write_data << 8*int'(byte_offset);
+                write_data_out = write_data_in << 8*int'(byte_offset);
                 write_strobe = 1'b1 << byte_offset;
             end
             MEM_SH: begin
-                write_data_out = write_data << 16*int'(byte_offset[1]);
+                write_data_out = write_data_in << 16*int'(byte_offset[1]);
                 write_strobe   = 2'b11 << 2*int'(byte_offset[1]);
             end
             MEM_SW:
                 write_strobe = 4'b1111;
+            MEM_NOP:
+                ;
         endcase
     end
 endmodule

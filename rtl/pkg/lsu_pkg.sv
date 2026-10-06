@@ -1,5 +1,5 @@
 package lsu_pkg;
-    typedef enum logic [2:0] {
+    typedef enum logic [3:0] {
         MEM_LB,
         MEM_LBU,
         MEM_LH,
@@ -7,6 +7,7 @@ package lsu_pkg;
         MEM_LW,
         MEM_SB,
         MEM_SH,
-        MEM_SW
+        MEM_SW,
+        MEM_NOP
     } memory_op_t;
 endpackage

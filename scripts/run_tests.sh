@@ -6,6 +6,8 @@ tests=(
     controller
     immediate_decoder
     register_file
+    data_memory
+    instruction_memory
 )
 
 for test in "${tests[@]}"; do

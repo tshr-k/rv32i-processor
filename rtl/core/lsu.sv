@@ -3,17 +3,20 @@ module lsu
     import lsu_pkg::*;
 (
     input  word_t       addr,
-    input  word_t       read_data_raw,
-    input  word_t       write_data_in,
     input  memory_op_t  memory_op,
 
     output logic [31:2] word_addr,
-    output logic        write_en,
-    output word_t       write_data_out,
-    output logic [3:0]  write_strobe,
+
+    input  word_t       read_data_raw,
     output word_t       read_data_strobed,
-    output logic        misaligned_load,
-    output logic        misaligned_store
+    
+    input  word_t       write_data_in,
+    output word_t       write_data_out,
+    output logic        write_en,
+    output logic [3:0]  write_strobe,
+
+    output logic        load_addr_misaligned,
+    output logic        store_addr_misaligned
 );
     logic [1:0] byte_offset;
     byte_t      read_byte;
@@ -29,13 +32,13 @@ module lsu
         MEM_SB,
         MEM_SH,
         MEM_SW
-    }) && !misaligned_store;
+    }) && !store_addr_misaligned;
 
-    assign misaligned_load = (memory_op inside {MEM_LH, MEM_LHU} && addr[0])
-                          || (memory_op == MEM_LW && |addr[1:0]);
+    assign load_addr_misaligned = (memory_op inside {MEM_LH, MEM_LHU} && addr[0])
+                               || (memory_op == MEM_LW && |addr[1:0]);
 
-    assign misaligned_store = (memory_op == MEM_SH && addr[0])
-                           || (memory_op == MEM_SW && |addr[1:0]);
+    assign store_addr_misaligned = (memory_op == MEM_SH && addr[0])
+                                || (memory_op == MEM_SW && |addr[1:0]);
 
     always_comb begin
         write_data_out    = write_data_in;
@@ -55,7 +58,7 @@ module lsu
                 read_data_strobed = read_data_raw;
             MEM_SB: begin
                 write_data_out = write_data_in << 8*int'(byte_offset);
-                write_strobe = 1'b1 << byte_offset;
+                write_strobe   = 1'b1 << byte_offset;
             end
             MEM_SH: begin
                 write_data_out = write_data_in << 16*int'(byte_offset[1]);

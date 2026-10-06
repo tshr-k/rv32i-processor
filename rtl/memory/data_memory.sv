@@ -4,6 +4,7 @@ module data_memory
     parameter int unsigned DEPTH = 256
 ) (
     input  logic        clk,
+    
     input  logic [31:2] word_addr,
     input  logic        write_en,
     input  word_t       write_data,

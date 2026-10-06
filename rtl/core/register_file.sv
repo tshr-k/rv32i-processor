@@ -2,14 +2,15 @@ module register_file
     import rv32i_pkg::*;
 (
     input  logic           clk,
+
     input  register_addr_t read_addr_1,
     input  register_addr_t read_addr_2,
+    output word_t          read_data_1,
+    output word_t          read_data_2,
+
     input  register_addr_t write_addr,
     input  logic           write_en,
-    input  word_t          write_data,
-
-    output word_t          read_data_1,
-    output word_t          read_data_2
+    input  word_t          write_data
 );
     word_t registers [31:0];
 

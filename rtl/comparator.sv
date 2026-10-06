@@ -8,7 +8,9 @@ module comparator
 
     output logic           result
 );
-    always_comb begin        
+    always_comb begin
+        result = 'x;
+            
         unique case (op)
             COMP_EQ:
                 result = a == b;

@@ -13,6 +13,8 @@ module alu
     assign shift_amount = b[4:0];
 
     always_comb begin
+        result = 'x;
+        
         unique case (op)
             ALU_ADD:
                 result = a + b;

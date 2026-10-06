@@ -3,10 +3,11 @@ import random
 import cocotb
 from cocotb.triggers import Timer
 from models.controller_model import ControllerModel
-from tb_utils import Bits32
+
+from tb.bits_32 import Bits32
 
 
-async def test_controller_instruction(dut, instruction: int):
+async def test_controller_instruction(dut, instruction: int) -> None:
     model = ControllerModel()
 
     dut.instruction.value = instruction

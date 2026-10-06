@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from enum import IntEnum
 
-from tb.tb_utils import Bits32
+from tb.bits_32 import Bits32
 
 
 class AluOp(IntEnum):

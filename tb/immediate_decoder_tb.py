@@ -4,7 +4,8 @@ from models.immediate_decoder_model import (
     ImmediateDecoderModel,
     InstructionFormat,
 )
-from tb_utils import Bits32
+
+from tb.bits_32 import Bits32
 
 
 async def test_immediate_format(dut, instruction_fmt: InstructionFormat):

@@ -11,3 +11,5 @@ for test in "${tests[@]}"; do
     make clean TEST="$test"
     make TEST="$test"
 done
+
+echo "All tests passed!"

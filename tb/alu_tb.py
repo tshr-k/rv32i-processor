@@ -3,10 +3,11 @@ import random
 import cocotb
 from cocotb.triggers import Timer
 from models.alu_model import AluModel, AluOp
-from tb_utils import Bits32
+
+from tb.bits_32 import Bits32
 
 
-async def test_alu_op(dut, op: AluOp):
+async def test_alu_op(dut, op: AluOp) -> None:
     model = AluModel()
     for _ in range(100):
         a = Bits32.random().u

@@ -3,7 +3,7 @@ from enum import IntEnum
 
 from models.immediate_decoder_model import InstructionFormat
 
-from tb.tb_utils import Bits32
+from tb.bits_32 import Bits32
 
 
 class RfWriteDataSel(IntEnum):

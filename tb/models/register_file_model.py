@@ -3,13 +3,13 @@ from dataclasses import dataclass
 
 @dataclass
 class RegisterFileOutput:
-    read_value_1: int
-    read_value_2: int
+    read_value_1: int | None
+    read_value_2: int | None
 
 
 class RegisterFileModel:
     def __init__(self):
-        self.registers = [0] * 32
+        self.registers: list[int | None] = [None] * 32
 
     def _check_index(self, index: int) -> None:
         if not (0 <= index < len(self.registers)):

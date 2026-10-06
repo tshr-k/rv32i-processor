@@ -27,6 +27,8 @@ module datapath
 
     input  branch_condition_t  branch_condition,
     input  pc_next_sel_t       pc_next_sel,
+    input  logic               pc_next_override_en,  // For passing control to the exception handler
+    input  word_t              pc_next_override,
 
     output exception_t         datapath_exception
 );
@@ -37,12 +39,12 @@ module datapath
     word_t          rf_read_data_2;
     register_addr_t rf_write_addr;
     word_t          rf_write_data;
-    
+
     assign rf_read_addr_1 = instruction[19:15];
     assign rf_read_addr_2 = instruction[24:20];
-    
+
     assign rf_write_addr  = instruction[11:7];
-    
+
     // Forward declarations
     word_t alu_result;
     word_t load_data;
@@ -152,9 +154,9 @@ module datapath
 
     always_ff @(posedge clk) begin
         if (reset)
-            pc <= '0;
+            pc <= INSTR_ADDR_RESET;
         else
-            pc <= pc_next;
+            pc <= pc_next_override_en ? pc_next_override : pc_next;
     end
 
 

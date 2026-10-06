@@ -66,12 +66,12 @@ class PcNextSel(IntEnum):
 
 class Exception(IntEnum):
     EXCEPT_INSTR_ADDR_MISALIGNED = 0
-    EXCEPT_ILLEGAL_INSTR = 1
-    EXCEPT_LOAD_ADDR_MISALIGNED = 2
-    EXCEPT_STORE_ADDR_MISALIGNED = 3
-    EXCEPT_ECALL = 4
-    EXCEPT_EBREAK = 5
-    EXCEPT_NONE = 6
+    EXCEPT_ILLEGAL_INSTR = 2
+    EXCEPT_LOAD_ADDR_MISALIGNED = 4
+    EXCEPT_STORE_ADDR_MISALIGNED = 6
+    EXCEPT_ECALL = 11  # Environment call from M-mode
+    EXCEPT_EBREAK = 3
+    EXCEPT_NONE = 7  # Value is irrelevant
 
 
 @dataclass(frozen=True)

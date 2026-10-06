@@ -23,26 +23,16 @@ module alu
         result = 'x;
         
         unique case (op)
-            ALU_ADD:
-                result = a + b;
-            ALU_SUB:
-                result = a - b;
-            ALU_AND:
-                result = a & b;
-            ALU_OR:
-                result = a | b;
-            ALU_XOR:
-                result = a ^ b;
-            ALU_SLL:
-                result = a << shift_amount;
-            ALU_SRL:
-                result = a >> shift_amount;
-            ALU_SRA:
-                result = $unsigned($signed(a) >>> shift_amount);
-            ALU_SLT:
-                result = word_t'(lt);
-            ALU_SLTU:
-                result = word_t'(ltu);
+            ALU_ADD:  result = a + b;
+            ALU_SUB:  result = a - b;
+            ALU_AND:  result = a & b;
+            ALU_OR:   result = a | b;
+            ALU_XOR:  result = a ^ b;
+            ALU_SLL:  result = a << shift_amount;
+            ALU_SRL:  result = a >> shift_amount;
+            ALU_SRA:  result = $unsigned($signed(a) >>> shift_amount);
+            ALU_SLT:  result = word_t'(lt);
+            ALU_SLTU: result = word_t'(ltu);
         endcase
     end
 endmodule

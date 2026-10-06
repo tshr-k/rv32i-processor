@@ -54,7 +54,7 @@ module datapath
 
         unique case (rf_write_data_sel)
             RF_WRITE_ALU_RES:   rf_write_data = alu_result;
-            RF_WRITE_LOAD_DATA: rf_write_data = load_data;
+            RF_WRITE_MEM_RES:   rf_write_data = load_data;
             RF_WRITE_PC_PLUS_4: rf_write_data = pc + 4;
             RF_WRITE_IMM:       rf_write_data = immediate;
         endcase
@@ -159,10 +159,10 @@ module datapath
 
 
     // Data memory
-    word_t       memory_addr;
-    word_t       store_data;
-    logic        load_addr_misaligned;
-    logic        store_addr_misaligned;
+    word_t memory_addr;
+    word_t store_data;
+    logic  load_addr_misaligned;
+    logic  store_addr_misaligned;
 
     assign memory_addr = alu_result;
     assign store_data  = rf_read_data_2;

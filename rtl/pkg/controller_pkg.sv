@@ -1,7 +1,7 @@
 package controller_pkg;
     typedef enum logic [1:0] {
         RF_WRITE_ALU_RES,
-        RF_WRITE_LOAD_DATA,
+        RF_WRITE_MEM_RES,
         RF_WRITE_PC_PLUS_4,
         RF_WRITE_IMM
     } rf_write_data_sel_t;

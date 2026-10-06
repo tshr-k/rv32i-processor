@@ -10,6 +10,9 @@ module instruction_memory
     word_t instructions [DEPTH-1:0];
 
     initial begin
+        assert (DEPTH > 0)
+            else $fatal(1, "DEPTH must be positive.");
+
         $readmemh("hex/instruction_memory.hex", instructions);
     end
 

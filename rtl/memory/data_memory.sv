@@ -15,6 +15,9 @@ module data_memory
     word_t data [DEPTH-1:0];
 
     initial begin
+        assert (DEPTH > 0)
+            else $fatal(1, "DEPTH must be positive.");
+        
         $readmemh("hex/data_memory.hex", data);
     end
 

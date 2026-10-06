@@ -1,5 +1,5 @@
 package alu_pkg;
-    typedef enum logic [2:0] {
+    typedef enum logic [3:0] {
         ALU_ADD,
         ALU_SUB,
         ALU_AND,
@@ -7,6 +7,8 @@ package alu_pkg;
         ALU_XOR,
         ALU_SLL,
         ALU_SRL,
-        ALU_SRA
+        ALU_SRA,
+        ALU_SLT,
+        ALU_SLTU
     } alu_op_t;
 endpackage

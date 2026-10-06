@@ -12,4 +12,14 @@ package rv32i_pkg;
         INSTR_FMT_J,
         INSTR_FMT_U
     } instruction_fmt_t;
+
+    typedef enum logic [2:0] {
+        EXCEPT_INSTR_ADDR_MISALIGNED,
+        EXCEPT_ILLEGAL_INSTR,
+        EXCEPT_LOAD_ADDR_MISALIGNED,
+        EXCEPT_STORE_ADDR_MISALIGNED,
+        EXCEPT_ECALL,
+        EXCEPT_EBREAK,
+        EXCEPT_NONE
+    } exception_t;
 endpackage

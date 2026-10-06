@@ -6,11 +6,18 @@ module alu
     input  word_t   b,
     input  alu_op_t op,
 
-    output word_t   result
+    output word_t   result,
+    output logic    eq,
+    output logic    lt,
+    output logic    ltu
 );
     logic [4:0] shift_amount;
 
     assign shift_amount = b[4:0];
+    
+    assign eq  = a == b;
+    assign lt  = $signed(a) < $signed(b);
+    assign ltu = a < b;
 
     always_comb begin
         result = 'x;
@@ -32,6 +39,10 @@ module alu
                 result = a >> shift_amount;
             ALU_SRA:
                 result = $unsigned($signed(a) >>> shift_amount);
+            ALU_SLT:
+                result = word_t'(lt);
+            ALU_SLTU:
+                result = word_t'(ltu);
         endcase
     end
 endmodule

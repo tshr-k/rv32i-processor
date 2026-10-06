@@ -1,0 +1,8 @@
+.vscode/
+todo.md
+
+build/
+sim_build/
+results.xml
+
+__pycache__/

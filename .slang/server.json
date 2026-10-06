@@ -1,0 +1,8 @@
+{
+  "index": [
+    {
+      "dirs": ["rtl"],
+      "excludeDirs": ["build"]
+    }
+  ]
+}

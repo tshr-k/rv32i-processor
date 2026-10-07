@@ -7,7 +7,7 @@ from models.instruction_memory_model import InstructionMemoryModel
 
 @cocotb.test
 async def test_instruction_memory_reads(dut):
-    image_path = Path("hex/instruction_memory.hex")
+    image_path = Path("hex/instr/default.hex")
     model = InstructionMemoryModel(image_path=image_path)
 
     for addr in range(0, 256, 4):

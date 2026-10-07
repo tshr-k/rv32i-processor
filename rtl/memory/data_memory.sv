@@ -1,6 +1,5 @@
 module data_memory
     import rv32i_pkg::*;
-    import math_pkg::*;
 #(
     parameter int unsigned DEPTH = 256
 ) (
@@ -16,13 +15,13 @@ module data_memory
     word_t data [DEPTH-1:0];
 
     initial begin
-        assert (DEPTH > 0)
-            else $fatal(1, "DEPTH must be positive.");
+        assert (DEPTH >= 2 && (DEPTH & (DEPTH - 1)) == 0)
+            else $fatal(1, "DEPTH must be a power of 2 and at least 2.");
 
-        $readmemh("hex/data_memory.hex", data);
+        $readmemh("hex/data/default.hex", data);
     end
 
-    localparam int unsigned WORD_ADDR_WIDTH = min1_clog2(DEPTH);
+    localparam int unsigned WORD_ADDR_WIDTH = $clog2(DEPTH);
 
     always @(posedge clk) begin
         if (write_en) begin
@@ -38,11 +37,7 @@ module data_memory
         end
     end
 
-    always_comb begin
-        assert ({2'b00, word_addr} < DEPTH)
-            else $error("Word address out of bounds");
-
-        read_data = data[word_addr[(WORD_ADDR_WIDTH+2) - 1 : 2]];
-    end
+    // Upper address bits are ignored, so out-of-range addresses wrap around
+    assign read_data = data[word_addr[(WORD_ADDR_WIDTH+2) - 1 : 2]];
 
 endmodule

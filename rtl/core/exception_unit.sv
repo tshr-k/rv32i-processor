@@ -2,7 +2,6 @@ module exception_unit
     import rv32i_pkg::*;
     import alu_pkg::*;
     import controller_pkg::*;
-    import lsu_pkg::*;
 (
     input exception_t          controller_exception,
     input exception_t          datapath_exception,
@@ -18,9 +17,6 @@ module exception_unit
     output alu_op_t            alu_op_out,
     output alu_a_sel_t         alu_a_sel_out,
     output alu_b_sel_t         alu_b_sel_out,
-
-    input  memory_op_t         memory_op_in,
-    output memory_op_t         memory_op_out,
 
     input  instruction_fmt_t   instruction_fmt_in,
     output instruction_fmt_t   instruction_fmt_out,
@@ -41,8 +37,6 @@ module exception_unit
     assign alu_op_out    = alu_op_in;
     assign alu_a_sel_out = alu_a_sel_in;
     assign alu_b_sel_out = alu_b_sel_in;
-
-    assign memory_op_out = exception ? MEM_NOP : memory_op_in;
 
     assign instruction_fmt_out  = instruction_fmt_in;
 

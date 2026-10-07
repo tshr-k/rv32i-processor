@@ -9,7 +9,7 @@ module lsu
 
     input  word_t       read_data_raw,
     output word_t       read_data_strobed,
-    
+
     input  word_t       write_data_in,
     output word_t       write_data_out,
     output logic        write_en,
@@ -24,9 +24,9 @@ module lsu
 
     assign word_addr   = addr[31:2];
     assign byte_offset = addr[1:0];
-    
+
     assign read_byte      = read_data_raw[8*int'(byte_offset)     +: 8];
-    assign read_half_word = read_data_raw[16*int'(byte_offset[1]) +: 16];    
+    assign read_half_word = read_data_raw[16*int'(byte_offset[1]) +: 16];
 
     assign write_en = (memory_op inside {
         MEM_SB,
@@ -62,7 +62,7 @@ module lsu
             end
             MEM_SH: begin
                 write_data_out = write_data_in << 16*int'(byte_offset[1]);
-                write_strobe   = 2'b11 << 2*int'(byte_offset[1]);
+                write_strobe   = 4'b0011 << 2*int'(byte_offset[1]);
             end
             MEM_SW:
                 write_strobe = 4'b1111;

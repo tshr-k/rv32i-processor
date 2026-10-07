@@ -11,8 +11,8 @@ tests=(
 )
 
 for test in "${tests[@]}"; do
-    make clean TEST="$test"
-    make TEST="$test"
+    make -f Makefile.unit clean TEST="$test"
+    make -f Makefile.unit TEST="$test"
 done
 
-echo "All tests passed!"
+echo "All unit tests passed!"

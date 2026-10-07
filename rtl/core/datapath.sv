@@ -85,9 +85,6 @@ module datapath
     // ALU
     word_t alu_a;
     word_t alu_b;
-    logic  alu_eq;
-    logic  alu_lt;
-    logic  alu_ltu;
 
     always_comb begin
         alu_a = 'x;
@@ -109,10 +106,21 @@ module datapath
         .a     (alu_a),
         .b     (alu_b),
         .op    (alu_op),
-        .result(alu_result),
-        .eq    (alu_eq),
-        .lt    (alu_lt),
-        .ltu   (alu_ltu)
+        .result(alu_result)
+    );
+
+
+    // Comparator
+    logic comparator_eq;
+    logic comparator_lt;
+    logic comparator_ltu;
+
+    comparator u_comparator (
+        .a  (rf_read_data_1),
+        .b  (rf_read_data_2),
+        .eq (comparator_eq),
+        .lt (comparator_lt),
+        .ltu(comparator_ltu)
     );
 
 
@@ -128,12 +136,12 @@ module datapath
         take_branch = 'x;
 
         unique case (branch_condition)
-            BRANCH_IF_EQ:  take_branch = alu_eq;
-            BRANCH_IF_NE:  take_branch = !alu_eq;
-            BRANCH_IF_LT:  take_branch = alu_lt;
-            BRANCH_IF_LTU: take_branch = alu_ltu;
-            BRANCH_IF_GE:  take_branch = !alu_lt;
-            BRANCH_IF_GEU: take_branch = !alu_ltu;
+            BRANCH_IF_EQ:  take_branch = comparator_eq;
+            BRANCH_IF_NE:  take_branch = !comparator_eq;
+            BRANCH_IF_LT:  take_branch = comparator_lt;
+            BRANCH_IF_LTU: take_branch = comparator_ltu;
+            BRANCH_IF_GE:  take_branch = !comparator_lt;
+            BRANCH_IF_GEU: take_branch = !comparator_ltu;
         endcase
     end
 

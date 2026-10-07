@@ -6,16 +6,14 @@ module alu
     input  word_t   b,
     input  alu_op_t op,
 
-    output word_t   result,
-    output logic    eq,
-    output logic    lt,
-    output logic    ltu
+    output word_t   result
 );
     logic [4:0] shift_amount;
+    logic       lt;
+    logic       ltu;
 
     assign shift_amount = b[4:0];
-    
-    assign eq  = a == b;
+
     assign lt  = $signed(a) < $signed(b);
     assign ltu = a < b;
 

@@ -20,19 +20,12 @@ class AluOp(IntEnum):
 @dataclass(frozen=True)
 class AluOutputs:
     result: int
-    eq: bool
-    lt: bool
-    ltu: bool
 
 
 class AluModel:
     def __call__(self, a_bits: int, b_bits: int, op: AluOp) -> AluOutputs:
         a = Bits32(a_bits)
         b = Bits32(b_bits)
-
-        eq = a.s == b.s
-        lt = a.s < b.s
-        ltu = a.u < b.u
 
         shift_amount = b.u & 0x1F  # Only consider the lower 5 bits for shifts
 
@@ -60,4 +53,4 @@ class AluModel:
             case _:
                 raise ValueError(f"Unsupported ALU operation: {op}")
 
-        return AluOutputs(result=result.u, eq=eq, lt=lt, ltu=ltu)
+        return AluOutputs(result=result.u)

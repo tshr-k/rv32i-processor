@@ -7,9 +7,7 @@ from cocotb.triggers import RisingEdge, Timer
 from models.data_memory_model import DataMemoryModel
 
 
-async def write_memory(
-    dut, word_addr: int, write_data: int, write_strobe: int
-) -> None:
+async def write_memory(dut, word_addr: int, write_data: int, write_strobe: int) -> None:
     dut.word_addr.value = word_addr
     dut.write_data.value = write_data
     dut.write_strobe.value = write_strobe
@@ -24,7 +22,8 @@ async def assert_read_value(dut, model: DataMemoryModel, word_addr: int) -> None
 
     expected = model.read(word_addr)
     if expected is None:
-        assert not dut.read_data.value.is_resolvable
+        # assert not dut.read_data.value.is_resolvable
+        assert dut.read_data.value == 0  # Verilator is a two-state simulator
     else:
         assert dut.read_data.value.to_unsigned() == expected
 

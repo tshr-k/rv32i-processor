@@ -26,12 +26,15 @@ async def assert_read_values(
     await Timer(1, unit="ns")
     expected_result = model.read(read_index_1, read_index_2)
     if expected_result.read_value_1 is None:
-        assert not dut.read_data_1.value.is_resolvable
+        # assert not dut.read_data_1.value.is_resolvable
+        assert dut.read_data_1.value == 0  # Verilator is a two-state simulator
     else:
         assert dut.read_data_1.value == expected_result.read_value_1
 
     if expected_result.read_value_2 is None:
-        assert not dut.read_data_2.value.is_resolvable
+        # assert not dut.read_data_2.value.is_resolvable
+        assert dut.read_data_2.value == 0  # Verilator is a two-state simulator
+
     else:
         assert dut.read_data_2.value == expected_result.read_value_2
 

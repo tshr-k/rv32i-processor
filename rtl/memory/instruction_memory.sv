@@ -1,5 +1,6 @@
 module instruction_memory
     import rv32i_pkg::*;
+    import math_pkg::*;
 #(
     parameter int unsigned DEPTH = 256
 ) (
@@ -16,10 +17,12 @@ module instruction_memory
         $readmemh("hex/instruction_memory.hex", instructions);
     end
 
+    localparam int unsigned INSTR_ADDR_WIDTH = min1_clog2(DEPTH);
+
     always_comb begin
-        assert (addr < DEPTH) 
+        assert (addr < DEPTH)
             else $error("Instruction address out of bounds");
-        
-        instruction = instructions[addr[31:2]];
+
+        instruction = instructions[addr[(INSTR_ADDR_WIDTH+2) - 1 : 2]];
     end
 endmodule

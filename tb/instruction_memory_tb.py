@@ -16,6 +16,7 @@ async def test_instruction_memory_reads(dut):
 
         expected = model.read(addr)
         if expected is None:
-            assert not dut.instruction.value.is_resolvable
+            # assert not dut.instruction.value.is_resolvable
+            assert dut.instruction.value == 0  # Verilator is a two-state simulator
         else:
-            assert dut.instruction.value.to_unsigned() == expected
+            assert dut.instruction.value.to_unsigned() == expected  # type: ignore

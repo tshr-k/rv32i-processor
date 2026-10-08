@@ -4,6 +4,8 @@ set -euo pipefail
 tests=(
     alu
     controller
+    comparator
+    exception_unit
     immediate_decoder
     register_file
     data_memory

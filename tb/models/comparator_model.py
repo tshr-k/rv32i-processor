@@ -4,6 +4,12 @@ from tb.bits_32 import Bits32
 
 
 @dataclass(frozen=True)
+class ComparatorInputs:
+    a: int
+    b: int
+
+
+@dataclass(frozen=True)
 class ComparatorOutputs:
     eq: bool
     lt: bool
@@ -11,8 +17,8 @@ class ComparatorOutputs:
 
 
 class ComparatorModel:
-    def __call__(self, a_bits: int, b_bits: int) -> ComparatorOutputs:
-        a = Bits32(a_bits)
-        b = Bits32(b_bits)
+    def __call__(self, inputs: ComparatorInputs) -> ComparatorOutputs:
+        a = Bits32(inputs.a)
+        b = Bits32(inputs.b)
 
         return ComparatorOutputs(eq=a.u == b.u, lt=a.s < b.s, ltu=a.u < b.u)

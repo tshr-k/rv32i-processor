@@ -75,6 +75,11 @@ class Exception(IntEnum):
 
 
 @dataclass(frozen=True)
+class ControllerInputs:
+    instruction: int
+
+
+@dataclass(frozen=True)
 class ControllerOutputs:
     rf_write_en: bool
     rf_write_data_sel: RfWriteDataSel
@@ -89,8 +94,8 @@ class ControllerOutputs:
 
 
 class ControllerModel:
-    def __call__(self, instruction_bits: int) -> ControllerOutputs:
-        instruction = Bits32(instruction_bits).u
+    def __call__(self, inputs: ControllerInputs) -> ControllerOutputs:
+        instruction = Bits32(inputs.instruction).u
         opcode = instruction & 0x7F
         funct_3 = (instruction >> 12) & 0x7
         funct_7 = (instruction >> 25) & 0x7F

@@ -2,18 +2,19 @@ import random
 
 import cocotb
 from cocotb.triggers import Timer
-from models.controller_model import ControllerModel
+from models.controller_model import ControllerInputs, ControllerModel
 
 from tb.bits_32 import Bits32
 
 
 async def test_controller_instruction(dut, instruction: int) -> None:
     model = ControllerModel()
+    inputs = ControllerInputs(instruction=instruction)
 
-    dut.instruction.value = instruction
+    dut.instruction.value = inputs.instruction
     await Timer(1, unit="ns")
 
-    expected = model(instruction)
+    expected = model(inputs)
     actual = {
         "rf_write_en": bool(int(dut.rf_write_en.value)),
         "rf_write_data_sel": int(dut.rf_write_data_sel.value),

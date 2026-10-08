@@ -18,14 +18,22 @@ class AluOp(IntEnum):
 
 
 @dataclass(frozen=True)
+class AluInputs:
+    a: int
+    b: int
+    op: AluOp
+
+
+@dataclass(frozen=True)
 class AluOutputs:
     result: int
 
 
 class AluModel:
-    def __call__(self, a_bits: int, b_bits: int, op: AluOp) -> AluOutputs:
-        a = Bits32(a_bits)
-        b = Bits32(b_bits)
+    def __call__(self, inputs: AluInputs) -> AluOutputs:
+        a = Bits32(inputs.a)
+        b = Bits32(inputs.b)
+        op = inputs.op
 
         shift_amount = b.u & 0x1F  # Only consider the lower 5 bits for shifts
 

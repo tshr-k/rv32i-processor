@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from enum import IntEnum
 
 from tb.bits_32 import Bits32
@@ -12,9 +13,21 @@ class InstructionFormat(IntEnum):
     INSTR_FMT_U = 5
 
 
+@dataclass(frozen=True)
+class ImmediateDecoderInputs:
+    instruction: int
+    instruction_fmt: InstructionFormat
+
+
+@dataclass(frozen=True)
+class ImmediateDecoderOutputs:
+    immediate: int
+
+
 class ImmediateDecoderModel:
-    def __call__(self, instruction_bits: int, instruction_fmt: InstructionFormat) -> int:
-        instruction = Bits32(instruction_bits).u
+    def __call__(self, inputs: ImmediateDecoderInputs) -> ImmediateDecoderOutputs:
+        instruction = Bits32(inputs.instruction).u
+        instruction_fmt = inputs.instruction_fmt
         sign = (instruction >> 31) & 1
 
         match instruction_fmt:
@@ -49,4 +62,4 @@ class ImmediateDecoderModel:
             case _:
                 raise ValueError(f"Unsupported instruction format: {instruction_fmt}")
 
-        return Bits32.truncate(immediate).u
+        return ImmediateDecoderOutputs(immediate=Bits32.truncate(immediate).u)

@@ -1,16 +1,18 @@
 import cocotb
 from cocotb.triggers import Timer
-from models.comparator_model import ComparatorModel
+from models.comparator_model import ComparatorInputs, ComparatorModel
 
 from tb.bits_32 import Bits32
 
 
 async def check_comparison(dut, model: ComparatorModel, a: int, b: int) -> None:
-    dut.a.value = a
-    dut.b.value = b
+    inputs = ComparatorInputs(a=a, b=b)
+
+    dut.a.value = inputs.a
+    dut.b.value = inputs.b
     await Timer(1, unit="ns")
 
-    expected = model(a, b)
+    expected = model(inputs)
 
     assert dut.eq.value == expected.eq, f"EQ failed: {a:#010x}, {b:#010x} != {dut.eq.value}"
 

@@ -1,6 +1,6 @@
 import cocotb
 from cocotb.triggers import Timer
-from models.alu_model import AluModel, AluOp
+from models.alu_model import AluInputs, AluModel, AluOp
 
 from tb.bits_32 import Bits32
 
@@ -8,17 +8,17 @@ from tb.bits_32 import Bits32
 async def test_alu_op(dut, op: AluOp) -> None:
     model = AluModel()
     for _ in range(100):
-        a = Bits32.random().u
-        b = Bits32.random().u
+        inputs = AluInputs(a=Bits32.random().u, b=Bits32.random().u, op=op)
 
-        dut.a.value = a
-        dut.b.value = b
-        dut.op.value = op.value
+        dut.a.value = inputs.a
+        dut.b.value = inputs.b
+        dut.op.value = inputs.op.value
         await Timer(1, unit="ns")
 
-        expected_result = model(a, b, op).result
-        assert dut.result.value.to_unsigned() == expected_result, (
-            f"{op.name} failed: {a:#010x}, {b:#010x} != {dut.result.value.to_unsigned():#010x}"
+        expected = model(inputs)
+        actual = dut.result.value.to_unsigned()
+        assert actual == expected.result, (
+            f"{op.name} failed: {inputs.a:#010x}, {inputs.b:#010x} != {actual:#010x}"
         )
 
 

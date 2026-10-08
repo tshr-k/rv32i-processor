@@ -1,8 +1,19 @@
 from __future__ import annotations
 
+from dataclasses import dataclass
 from pathlib import Path
 
 from tb.bits_32 import Bits32
+
+
+@dataclass(frozen=True)
+class InstructionMemoryInputs:
+    addr: int
+
+
+@dataclass(frozen=True)
+class InstructionMemoryOutputs:
+    instruction: int | None
 
 
 class InstructionMemoryModel:
@@ -22,7 +33,7 @@ class InstructionMemoryModel:
             self.memory[word_addr] = Bits32(int(contents, 16)).u
             word_addr += 1
 
-    def read(self, addr: int) -> int | None:
-        if not (0 <= addr < len(self.memory)):
-            raise IndexError("Instruction memory address out of range.")
-        return self.memory[addr >> 2]
+    def read(self, inputs: InstructionMemoryInputs) -> InstructionMemoryOutputs:
+        # Upper address bits are ignored, so out-of-range addresses wrap around
+        word_addr = (Bits32(inputs.addr).u >> 2) % len(self.memory)
+        return InstructionMemoryOutputs(instruction=self.memory[word_addr])

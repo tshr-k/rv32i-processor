@@ -1,6 +1,7 @@
 import cocotb
 from cocotb.triggers import Timer
 from models.immediate_decoder_model import (
+    ImmediateDecoderInputs,
     ImmediateDecoderModel,
     InstructionFormat,
 )
@@ -11,16 +12,19 @@ from tb.bits_32 import Bits32
 async def test_immediate_format(dut, instruction_fmt: InstructionFormat):
     model = ImmediateDecoderModel()
     for _ in range(100):
-        instruction = Bits32.random().u
+        inputs = ImmediateDecoderInputs(
+            instruction=Bits32.random().u, instruction_fmt=instruction_fmt
+        )
 
-        dut.instruction.value = instruction
-        dut.instruction_fmt.value = instruction_fmt.value
+        dut.instruction.value = inputs.instruction
+        dut.instruction_fmt.value = inputs.instruction_fmt.value
         await Timer(1, unit="ns")
 
-        expected_immediate = model(instruction, instruction_fmt)
-        assert dut.immediate.value.to_unsigned() == expected_immediate, (
-            f"{instruction_fmt.name} failed: {instruction:#010x}, "
-            f"{expected_immediate:#010x} != {dut.immediate.value.to_unsigned():#010x}"
+        expected = model(inputs)
+        actual = dut.immediate.value.to_unsigned()
+        assert actual == expected.immediate, (
+            f"{instruction_fmt.name} failed: {inputs.instruction:#010x}, "
+            f"{expected.immediate:#010x} != {actual:#010x}"
         )
 
 

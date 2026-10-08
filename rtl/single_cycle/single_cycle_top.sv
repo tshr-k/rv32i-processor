@@ -1,4 +1,4 @@
-module top
+module single_cycle_top
     import rv32i_pkg::*;
 #(
     parameter int unsigned INSTR_MEM_DEPTH = 256,
@@ -16,7 +16,7 @@ module top
     word_t       instruction_addr;
     word_t       instruction;
 
-    core u_core (
+    single_cycle_core u_core (
         .clk                 (clk),
         .reset               (reset),
         .memory_read_data_raw(memory_read_data_raw),

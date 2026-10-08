@@ -1,4 +1,4 @@
-module exception_unit
+module single_cycle_exception_unit
     import rv32i_pkg::*;
     import alu_pkg::*;
     import controller_pkg::*;

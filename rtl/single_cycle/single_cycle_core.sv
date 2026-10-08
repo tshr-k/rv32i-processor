@@ -1,4 +1,4 @@
-module core
+module single_cycle_core
     import rv32i_pkg::*;
     import alu_pkg::*;
     import controller_pkg::*;
@@ -50,7 +50,7 @@ module core
     pc_next_sel_t       pc_next_sel_eff;
     logic               memory_write_en_raw;
 
-    controller u_controller (
+    single_cycle_controller u_controller (
         .instruction         (instruction),
         .rf_write_en         (rf_write_en),
         .rf_write_data_sel   (rf_write_data_sel),
@@ -64,7 +64,7 @@ module core
         .controller_exception(controller_exception)
     );
 
-    exception_unit u_exception_unit (
+    single_cycle_exception_unit u_exception_unit (
         .controller_exception (controller_exception),
         .datapath_exception   (datapath_exception),
         .rf_write_en_in       (rf_write_en),
@@ -89,7 +89,7 @@ module core
         .pc_next_override     (pc_next_override)
     );
 
-    datapath u_datapath (
+    single_cycle_datapath u_datapath (
         .clk                 (clk),
         .reset               (reset),
         .rf_write_en         (rf_write_en_eff),

@@ -1,4 +1,4 @@
-module controller
+module single_cycle_controller
     import rv32i_pkg::*;
     import alu_pkg::*;
     import controller_pkg::*;

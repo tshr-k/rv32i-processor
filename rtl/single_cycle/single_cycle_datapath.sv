@@ -1,4 +1,4 @@
-module datapath
+module single_cycle_datapath
     import rv32i_pkg::*;
     import alu_pkg::*;
     import controller_pkg::*;

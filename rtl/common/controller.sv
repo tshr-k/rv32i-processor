@@ -22,7 +22,8 @@ module controller
 
     output exception_t         controller_exception,
 
-    output logic               mret_en  // Tells the exception unit to return from the exception handler
+    // To tell the exception unit to return from the exception handler by overriding the PC
+    output logic               mret_en
 );
     localparam OPCODE_R       = 7'b0110011;
     localparam OPCODE_I_JALR  = 7'b1100111;

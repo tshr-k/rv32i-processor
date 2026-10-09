@@ -10,8 +10,8 @@ export PYTHONPATH := $(CURDIR)/tb:$(PYTHONPATH)
 PKG_SOURCES = \
 	$(CURDIR)/rtl/pkg/rv32i_pkg.sv \
 	$(CURDIR)/rtl/pkg/alu_pkg.sv \
-	$(CURDIR)/rtl/pkg/controller_pkg.sv \
-	$(CURDIR)/rtl/pkg/lsu_pkg.sv
+	$(CURDIR)/rtl/pkg/lsu_pkg.sv \
+	$(CURDIR)/rtl/pkg/controller_pkg.sv
 
 ifdef TEST  # Unit test: <module> must match exactly one rtl/*/<module>.sv
 	ifdef ARCH

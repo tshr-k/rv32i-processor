@@ -31,4 +31,40 @@ package controller_pkg;
         BRANCH_IF_GE,
         BRANCH_IF_GEU
     } branch_condition_t;
+
+    // This struct is not used in any module's port list
+    // to keep the signals easy to access in the cocotb testbenches
+    import alu_pkg::*;
+    import lsu_pkg::*;
+    import rv32i_pkg::*;
+    typedef struct packed {
+        logic               rf_write_en;
+        rf_write_data_sel_t rf_write_data_sel;
+
+        alu_op_t            alu_op;
+        alu_a_sel_t         alu_a_sel;
+        alu_b_sel_t         alu_b_sel;
+
+        memory_op_t         memory_op;
+
+        instruction_fmt_t   instruction_fmt;
+
+        branch_condition_t  branch_condition;
+        pc_next_sel_t       pc_next_sel;
+
+        exception_t         controller_exception;
+    } control_t;
+
+    localparam control_t CONTROL_NOP = control_t'{
+        rf_write_en:          1'b0,
+        rf_write_data_sel:    RF_WRITE_ALU_RES,
+        alu_op:               ALU_ADD,
+        alu_a_sel:            ALU_A_RS1,
+        alu_b_sel:            ALU_B_RS2,
+        memory_op:            MEM_NOP,
+        instruction_fmt:      INSTR_FMT_R,
+        branch_condition:     BRANCH_IF_EQ,
+        pc_next_sel:          PC_NEXT_PLUS_4,
+        controller_exception: EXCEPT_NONE
+    };
 endpackage

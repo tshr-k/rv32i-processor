@@ -3,7 +3,13 @@ from pathlib import Path
 import cocotb
 from cocotb.clock import Clock
 from cocotb.triggers import RisingEdge
-from top_tb_utils import clear_register_file, load_instruction_memory, log_register_file, reset
+from top_tb_utils import (
+    clear_data_memory,
+    clear_register_file,
+    load_instruction_memory,
+    log_register_file,
+    reset,
+)
 
 
 async def run_sum_loop_mixed_ops(top, image_path: Path, cycles: int, return_address: int) -> None:
@@ -17,6 +23,7 @@ async def run_sum_loop_mixed_ops(top, image_path: Path, cycles: int, return_addr
     register_file = top.u_core.u_datapath.u_register_file
     load_instruction_memory(top.u_instruction_memory, image_path)
     clear_register_file(register_file)
+    clear_data_memory(top.u_data_memory)
 
     await reset(top)
 

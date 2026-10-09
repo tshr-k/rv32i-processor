@@ -53,3 +53,8 @@ def clear_register_file(u_register_file) -> None:
     for i in range(32):
         u_register_file.registers[i].value = 0
 
+
+def clear_data_memory(u_data_memory) -> None:
+    """Keeps stores from an earlier test in the same simulation from masking a failure."""
+    for i in range(len(u_data_memory.data)):
+        u_data_memory.data[i].value = 0

@@ -3,6 +3,7 @@ package rv32i_pkg;
     typedef logic [15:0] half_word_t;
     typedef logic [31:0] word_t;
     typedef logic [4:0]  register_addr_t;
+    typedef logic [11:0] csr_addr_t;
 
     typedef enum logic [2:0] {
         INSTR_FMT_R,
@@ -24,5 +25,5 @@ package rv32i_pkg;
     } exception_t;
 
     localparam word_t INSTR_ADDR_RESET    = 32'h0000_0000;
-    localparam word_t MACHINE_TRAP_VECTOR = 32'h0000_0004;
+    localparam word_t MTVEC_RESET         = 32'h0000_0004;
 endpackage

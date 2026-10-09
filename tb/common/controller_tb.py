@@ -25,6 +25,7 @@ async def test_controller_instruction(dut, instruction: int) -> None:
         "instruction_fmt": int(dut.instruction_fmt.value),
         "branch_condition": int(dut.branch_condition.value),
         "pc_next_sel": int(dut.pc_next_sel.value),
+        "mret_en": bool(int(dut.mret_en.value)),
         "controller_exception": int(dut.controller_exception.value),
     }
 
@@ -38,6 +39,7 @@ async def test_controller_instruction(dut, instruction: int) -> None:
         "instruction_fmt": expected.instruction_fmt.value,
         "branch_condition": expected.branch_condition.value,
         "pc_next_sel": expected.pc_next_sel.value,
+        "mret_en": expected.mret_en,
         "controller_exception": expected.controller_exception.value,
     }, f"{instruction:#010x}: {expected} != {actual}"
 
@@ -102,6 +104,12 @@ async def test_controller_valid_instructions(dut):
             (0b0010111, 0, 0),
             (0b0110111, 0, 0),
         ]
+    ]
+
+    instructions += [
+        0x00000073,  # ECALL
+        0x00100073,  # EBREAK
+        0x30200073,  # MRET
     ]
 
     for instruction in instructions:

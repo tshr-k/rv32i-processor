@@ -4,6 +4,8 @@ set -euo pipefail
 common_tests=(
     alu
     comparator
+    controller
+    machine_csr
     immediate_decoder
     register_file
     data_memory
@@ -11,7 +13,6 @@ common_tests=(
 )
 
 single_cycle_tests=(
-    single_cycle_controller
     single_cycle_exception_unit
 )
 

@@ -90,6 +90,7 @@ class ControllerOutputs:
     instruction_fmt: InstructionFormat
     branch_condition: BranchCondition
     pc_next_sel: PcNextSel
+    mret_en: bool
     controller_exception: Exception
 
 
@@ -109,6 +110,7 @@ class ControllerModel:
         instruction_fmt = InstructionFormat.INSTR_FMT_R
         branch_condition = BranchCondition.BRANCH_IF_EQ
         pc_next_sel = PcNextSel.PC_NEXT_PLUS_4
+        mret_en = False
         controller_exception = Exception.EXCEPT_NONE
 
         match opcode:
@@ -201,6 +203,8 @@ class ControllerModel:
                     controller_exception = Exception.EXCEPT_ECALL
                 elif ((instruction >> 20) & 0xFFF) == 1:
                     controller_exception = Exception.EXCEPT_EBREAK
+                elif ((instruction >> 20) & 0xFFF) == 0x302:
+                    mret_en = True
                 else:
                     controller_exception = Exception.EXCEPT_ILLEGAL_INSTR
 
@@ -266,5 +270,6 @@ class ControllerModel:
             instruction_fmt=instruction_fmt,
             branch_condition=branch_condition,
             pc_next_sel=pc_next_sel,
+            mret_en=mret_en,
             controller_exception=controller_exception,
         )

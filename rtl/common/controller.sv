@@ -1,4 +1,4 @@
-module single_cycle_controller
+module controller
     import rv32i_pkg::*;
     import alu_pkg::*;
     import controller_pkg::*;
@@ -20,6 +20,7 @@ module single_cycle_controller
     output branch_condition_t  branch_condition,
     output pc_next_sel_t       pc_next_sel,
 
+    output logic               mret_en,
     output exception_t         controller_exception
 );
     localparam OPCODE_R       = 7'b0110011;
@@ -44,7 +45,7 @@ module single_cycle_controller
 
     always_comb begin
         instruction_fmt      = INSTR_FMT_R;
-        
+
         rf_write_en          = 1'b0;
         rf_write_data_sel    = RF_WRITE_ALU_RES;
 
@@ -57,6 +58,7 @@ module single_cycle_controller
         branch_condition     = BRANCH_IF_EQ;
         pc_next_sel          = PC_NEXT_PLUS_4;
 
+        mret_en              = 1'b0;
         controller_exception = EXCEPT_NONE;
 
         unique0 case (opcode)
@@ -205,6 +207,7 @@ module single_cycle_controller
                         unique0 case (instruction[31:20])
                             12'b000000000000: controller_exception = EXCEPT_ECALL;  // ECALL
                             12'b000000000001: controller_exception = EXCEPT_EBREAK; // EBREAK
+                            12'b001100000010: mret_en              = 1'b1;          // MRET
                             default:          controller_exception = EXCEPT_ILLEGAL_INSTR;
                         endcase
                     end
@@ -212,7 +215,7 @@ module single_cycle_controller
                     default: controller_exception = EXCEPT_ILLEGAL_INSTR;
                 endcase
             end
-            
+
             OPCODE_S: begin
                 instruction_fmt = INSTR_FMT_S;
                 alu_op          = ALU_ADD;
@@ -226,7 +229,7 @@ module single_cycle_controller
                     default: controller_exception = EXCEPT_ILLEGAL_INSTR;
                 endcase
             end
-            
+
             OPCODE_B: begin
                 instruction_fmt = INSTR_FMT_B;
                 alu_op          = ALU_ADD;
@@ -244,7 +247,7 @@ module single_cycle_controller
                     default: controller_exception = EXCEPT_ILLEGAL_INSTR;
                 endcase
             end
-            
+
             OPCODE_J: begin  // JAL
                 instruction_fmt   = INSTR_FMT_J;
                 rf_write_en       = 1'b1;
@@ -263,7 +266,7 @@ module single_cycle_controller
                 alu_a_sel         = ALU_A_PC;
                 alu_b_sel         = ALU_B_IMM;
             end
-            
+
             OPCODE_U_LUI: begin  // LUI
                 instruction_fmt   = INSTR_FMT_U;
                 rf_write_en       = 1'b1;

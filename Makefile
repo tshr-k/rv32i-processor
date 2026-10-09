@@ -40,6 +40,6 @@ else
     $(error ARCH or TEST is required, for example: make ARCH=single_cycle, or make TEST=alu)
 endif
 
-WAVES = 1
+EXTRA_ARGS += --trace --trace-fst --trace-structs
 
 include $(shell cocotb-config --makefiles)/Makefile.sim

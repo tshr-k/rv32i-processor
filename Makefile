@@ -1,6 +1,7 @@
 # Usage:
 #   make ARCH=single_cycle|pipeline   integration test (tb/<ARCH>/<ARCH>_top_tb.py)
 #   make TEST=<module>                unit test for one module (tb/<dir>/<module>_tb.py)
+#   make TEST=<module> PARAMS="P=V"   unit test with top-level parameter overrides (space-separated)
 #   make clean                        remove all build output
 SIM = verilator
 TOPLEVEL_LANG = verilog
@@ -22,7 +23,9 @@ ifdef TEST  # Unit test: <module> must match exactly one rtl/*/<module>.sv
 	endif
 	TEST_DIR = $(notdir $(patsubst %/,%,$(dir $(TEST_SOURCES))))
 
-	SIM_BUILD = build/unit
+	# One build directory per module and parameter set, so switching between them always rebuilds
+	SIM_BUILD = build/unit/$(TEST)$(subst $() ,,$(addprefix _,$(PARAMS)))
+	COMPILE_ARGS += $(addprefix -G,$(PARAMS))
 	VERILOG_SOURCES = $(PKG_SOURCES) $(TEST_SOURCES)
 	COCOTB_TOPLEVEL = $(TEST)
 	COCOTB_TEST_MODULES = tb.$(TEST_DIR).$(TEST)_tb

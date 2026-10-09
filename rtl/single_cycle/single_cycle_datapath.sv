@@ -58,6 +58,9 @@ module single_cycle_datapath
             RF_WRITE_ALU_RES:   rf_write_data = alu_result;
             RF_WRITE_MEM_RES:   rf_write_data = load_data;
             RF_WRITE_PC_PLUS_4: rf_write_data = pc + 4;
+
+            // To simplify control, the immediate is not routed through
+            // the ALU (add zero) for the LUI instruction
             RF_WRITE_IMM:       rf_write_data = immediate;
         endcase
     end
@@ -182,7 +185,7 @@ module single_cycle_datapath
         .memory_op            (memory_op),
         .word_addr            (memory_word_addr),
         .read_data_raw        (memory_read_data_raw),
-        .read_data_strobed    (load_data),
+        .read_data_aligned    (load_data),
         .write_data_in        (store_data),
         .write_data_out       (memory_write_data),
         .write_en             (memory_write_en),

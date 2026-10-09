@@ -14,6 +14,7 @@ package rv32i_pkg;
         INSTR_FMT_U
     } instruction_fmt_t;
 
+    // Exception codes as per RISC-V spec
     typedef enum logic [3:0] {
         EXCEPT_INSTR_ADDR_MISALIGNED = 0,
         EXCEPT_ILLEGAL_INSTR         = 2,

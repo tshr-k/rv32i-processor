@@ -3,8 +3,7 @@ module instruction_memory
 #(
     parameter int unsigned DEPTH = 256
 ) (
-    input  word_t addr,
-
+    input  word_t addr,  // Byte address
     output word_t instruction
 );
     word_t instructions [DEPTH-1:0];
@@ -18,6 +17,7 @@ module instruction_memory
 
     localparam int unsigned INSTR_ADDR_WIDTH = $clog2(DEPTH);
 
+    // Asynchronous read, after extracting the word address from the byte address
     // Upper address bits are ignored, so out-of-range addresses wrap around
     assign instruction = instructions[addr[(INSTR_ADDR_WIDTH+2) - 1 : 2]];
 endmodule

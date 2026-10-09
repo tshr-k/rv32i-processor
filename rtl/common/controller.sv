@@ -20,15 +20,16 @@ module controller
     output branch_condition_t  branch_condition,
     output pc_next_sel_t       pc_next_sel,
 
-    output logic               mret_en,
-    output exception_t         controller_exception
+    output exception_t         controller_exception,
+
+    output logic               mret_en  // Tells the exception unit to return from the exception handler
 );
     localparam OPCODE_R       = 7'b0110011;
     localparam OPCODE_I_JALR  = 7'b1100111;
     localparam OPCODE_I_LOAD  = 7'b0000011;
     localparam OPCODE_I_ALU   = 7'b0010011;
     localparam OPCODE_I_FENCE = 7'b0001111;
-    localparam OPCODE_I_ENV   = 7'b1110011;
+    localparam OPCODE_I_ENV   = 7'b1110011;  // ECALL, EBREAK, MRET
     localparam OPCODE_S       = 7'b0100011;
     localparam OPCODE_B       = 7'b1100011;
     localparam OPCODE_J       = 7'b1101111;
@@ -44,6 +45,7 @@ module controller
     assign funct_7 = instruction[31:25];
 
     always_comb begin
+        // Default values do not mutate state
         instruction_fmt      = INSTR_FMT_R;
 
         rf_write_en          = 1'b0;

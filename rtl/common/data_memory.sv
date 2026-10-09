@@ -6,9 +6,10 @@ module data_memory
     input  logic        clk,
 
     input  logic [31:2] word_addr,
+
     input  logic        write_en,
     input  word_t       write_data,
-    input  logic [3:0]  write_strobe,
+    input  logic [3:0]  write_strobe,  // One bit per byte of write_data
 
     output word_t       read_data
 );
@@ -23,9 +24,9 @@ module data_memory
 
     localparam int unsigned WORD_ADDR_WIDTH = $clog2(DEPTH);
 
+    // Synchronous write
     always @(posedge clk) begin
         if (write_en) begin
-
             if (write_strobe[0])
                 data[word_addr[(WORD_ADDR_WIDTH+2) - 1 : 2]][7:0] <= write_data[7:0];
             if (write_strobe[1])
@@ -37,6 +38,7 @@ module data_memory
         end
     end
 
+    // Asynchronous read
     // Upper address bits are ignored, so out-of-range addresses wrap around
     assign read_data = data[word_addr[(WORD_ADDR_WIDTH+2) - 1 : 2]];
 

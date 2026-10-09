@@ -7,12 +7,14 @@ module single_cycle_core
     input  logic        clk,
     input  logic        reset,
 
+    // Data memory interface
     input  word_t       memory_read_data_raw,
     output logic [31:2] memory_word_addr,
     output logic        memory_write_en,
     output word_t       memory_write_data,
     output logic [3:0]  memory_write_strobe,
 
+    // Instruction memory interface
     output word_t       instruction_addr,
     input  word_t       instruction
 );
@@ -117,5 +119,6 @@ module single_cycle_core
         .datapath_exception  (datapath_exception)
     );
 
+    // Suppress memory writes if an exception occurs
     assign memory_write_en = memory_write_en_raw && !exception;
 endmodule

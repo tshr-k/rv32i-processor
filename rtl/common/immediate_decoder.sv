@@ -2,12 +2,12 @@ module immediate_decoder
     import rv32i_pkg::*;
 (
     input  word_t            instruction,
-    input  instruction_fmt_t instruction_fmt,   
+    input  instruction_fmt_t instruction_fmt,
 
     output word_t            immediate
 );
     logic sign;
-    
+
     assign sign = instruction[31];
 
     always_comb begin
@@ -34,7 +34,7 @@ module immediate_decoder
                     instruction[7],
                     instruction[30:25],
                     instruction[11:8],
-                    1'b0
+                    1'b0  // Branch targets are always 2-byte aligned
                 };
             INSTR_FMT_J:
                 immediate = {
@@ -43,7 +43,7 @@ module immediate_decoder
                     instruction[19:12],
                     instruction[20],
                     instruction[30:21],
-                    1'b0
+                    1'b0  // Jump targets are always 2-byte aligned
                 };
             INSTR_FMT_U:
                 immediate = {

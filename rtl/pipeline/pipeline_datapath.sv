@@ -81,10 +81,12 @@ module pipeline_datapath
     assign pc_plus_4_IF        = pc_IF + 4;
 
     always_ff @(posedge clk) begin
-        if (reset)
+        if (reset)  // Global reset has top priority
             pc_IF <= INSTR_ADDR_RESET;
+        else if (pc_next_override_en_IF)  // Exceptions and MRET have priority over a jump/taken-branch or a load-use stall
+            pc_IF <= pc_next_override_IF;
         else if (!stall_IF)
-            pc_IF <= pc_next_override_en_IF ? pc_next_override_IF : pc_next_IF;
+            pc_IF <= pc_next_IF;
     end
 
 

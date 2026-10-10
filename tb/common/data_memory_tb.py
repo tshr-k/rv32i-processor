@@ -34,7 +34,7 @@ async def assert_read_value(dut, model: DataMemoryModel, inputs: DataMemoryReadI
 
 @cocotb.test
 async def test_data_memory_byte_writes(dut):
-    cocotb.start_soon(Clock(dut.clk, 10, unit="ns").start())
+    cocotb.start_soon(Clock(dut.clk, 10, unit="ns").start(start_high=False))
     model = DataMemoryModel()
 
     for word_addr in range(32):
@@ -58,7 +58,7 @@ async def test_data_memory_byte_writes(dut):
 
 @cocotb.test
 async def test_data_memory_write_enable(dut):
-    cocotb.start_soon(Clock(dut.clk, 10, unit="ns").start())
+    cocotb.start_soon(Clock(dut.clk, 10, unit="ns").start(start_high=False))
     model = DataMemoryModel()
     word_addr = 0
 
@@ -76,7 +76,7 @@ async def test_data_memory_write_enable(dut):
 
 @cocotb.test
 async def test_data_memory_address_wrap(dut):
-    cocotb.start_soon(Clock(dut.clk, 10, unit="ns").start())
+    cocotb.start_soon(Clock(dut.clk, 10, unit="ns").start(start_high=False))
     model = DataMemoryModel()
     depth = len(model.memory)
 

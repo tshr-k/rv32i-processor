@@ -18,7 +18,7 @@ async def run_sum_loop_mixed_ops(top, image_path: Path, cycles: int, return_addr
 
     The variants differ only in padding, which moves the return address of the jal.
     """
-    cocotb.start_soon(Clock(top.clk, 10, unit="ns").start())
+    cocotb.start_soon(Clock(top.clk, 10, unit="ns").start(start_high=False))
 
     register_file = top.u_core.u_datapath.u_register_file
     load_instruction_memory(top.u_instruction_memory, image_path)

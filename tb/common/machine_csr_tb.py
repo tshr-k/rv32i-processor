@@ -61,7 +61,7 @@ async def assert_all_read_values(dut, model: MachineCsrModel) -> None:
 
 async def start(dut) -> MachineCsrModel:
     """Start the clock and reset the DUT, returning a model in the reset state."""
-    cocotb.start_soon(Clock(dut.clk, 10, unit="ns").start())
+    cocotb.start_soon(Clock(dut.clk, 10, unit="ns").start(start_high=False))
     dut.trap_enter.value = 0
     dut.csr_write_en.value = 0
 

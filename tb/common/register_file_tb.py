@@ -43,7 +43,9 @@ async def assert_read_values(
 
 @cocotb.test
 async def test_rf_read_write(dut):
-    cocotb.start_soon(Clock(dut.clk, 10, unit="ns").start())
+    # Start low since starting high triggers a rising edge at t=0 which commits the first write too early
+    cocotb.start_soon(Clock(dut.clk, 10, unit="ns").start(start_high=False))
+
     model = RegisterFileModel(write_through=bool(dut.WRITE_THROUGH.value))
 
     for _ in range(200):

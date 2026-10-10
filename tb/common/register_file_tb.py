@@ -1,4 +1,5 @@
 import random
+from enum import Enum, auto
 
 import cocotb
 from bits_32 import Bits32
@@ -9,6 +10,37 @@ from models.register_file_model import (
     RegisterFileReadInputs,
     RegisterFileWriteInputs,
 )
+
+
+class ValueFormat(Enum):
+    BIN = auto()
+    HEX = auto()
+    INT = auto()
+
+
+def log_register_file(u_register_file, value_format: ValueFormat = ValueFormat.HEX) -> None:
+    registers = u_register_file.registers
+    for i in range(32):
+        value = registers[i].value
+
+        match value_format:
+            case ValueFormat.BIN:
+                formatted_value = f"0b{value}"
+            case ValueFormat.HEX:
+                formatted_value = f"0x{value:X}"
+            case ValueFormat.INT:
+                formatted_value = f"{int(value)}"
+
+        cocotb.log.info(f"x{i}:\t{formatted_value}")
+
+
+def clear_register_file(u_register_file) -> None:
+    """
+    Zeroes the registers, which have no reset, so that neither the simulator's initial values
+    nor results from an earlier test in the same simulation can mask a failure.
+    """
+    for i in range(32):
+        u_register_file.registers[i].value = 0
 
 
 def drive_write(dut, inputs: RegisterFileWriteInputs) -> None:
@@ -47,6 +79,7 @@ async def test_rf_read_write(dut):
     cocotb.start_soon(Clock(dut.clk, 10, unit="ns").start(start_high=False))
 
     model = RegisterFileModel(write_through=bool(dut.WRITE_THROUGH.value))
+    clear_register_file(dut)  # Matches the model's empty registers, read back as 0
 
     for _ in range(200):
         read_inputs = RegisterFileReadInputs(

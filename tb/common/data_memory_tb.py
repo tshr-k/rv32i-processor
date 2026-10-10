@@ -11,6 +11,12 @@ from models.data_memory_model import (
 )
 
 
+def clear_data_memory(u_data_memory) -> None:
+    """Keeps stores from an earlier test in the same simulation from masking a failure."""
+    for i in range(len(u_data_memory.data)):
+        u_data_memory.data[i].value = 0
+
+
 async def write_memory(dut, inputs: DataMemoryWriteInputs) -> None:
     dut.word_addr.value = inputs.word_addr
     dut.write_data.value = inputs.write_data

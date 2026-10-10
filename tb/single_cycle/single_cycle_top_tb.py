@@ -2,14 +2,19 @@ from pathlib import Path
 
 import cocotb
 from cocotb.clock import Clock
-from cocotb.triggers import RisingEdge
-from top_tb_utils import (
-    clear_data_memory,
-    clear_register_file,
-    load_instruction_memory,
-    log_register_file,
-    reset,
-)
+from cocotb.triggers import RisingEdge, Timer
+from common.data_memory_tb import clear_data_memory
+from common.instruction_memory_tb import load_instruction_memory
+from common.register_file_tb import clear_register_file, log_register_file
+
+
+async def reset(top) -> None:
+    top.reset.value = 1
+    for _ in range(3):
+        await RisingEdge(top.clk)
+
+    top.reset.value = 0
+    await Timer(1, unit="ns")
 
 
 async def run_sum_loop_mixed_ops(top, image_path: Path, cycles: int, return_address: int) -> None:

@@ -18,6 +18,28 @@ module pipeline_core
     output word_t       instruction_addr,
     input  word_t       instruction
 );
+    // Exceptions are taken in MEM
+    exception_t         controller_exception_MEM;
+    exception_t         datapath_exception_MEM;
+    logic               exception_MEM;
+    word_t              instruction_addr_MEM;
+    logic               pc_next_override_en;
+    word_t              pc_next_override;
+
+    word_t              trap_pc;
+    word_t              trap_cause;
+    word_t              mtvec;
+    word_t              mepc;
+
+    // Hazard control
+    logic               stall_IF;
+    logic               stall_ID;
+    logic               flush_ID;
+    logic               flush_EX;
+    logic               flush_MEM;
+    logic               flush_WB;
+    logic               mret_en_EX_hazard;  // mret_en_EX, passed on by the exception unit
+
     // Control signals straight from the controller, for the instruction being fetched
     logic               rf_write_en_IF;
     rf_write_data_sel_t rf_write_data_sel_IF;
@@ -36,22 +58,13 @@ module pipeline_core
     logic               mret_en_EX;
     exception_t         controller_exception_IF;
 
-    // Exceptions are taken in MEM
-    exception_t         exception_MEM;
-    logic               exception;
-    word_t              instruction_addr_MEM;
-    logic               pc_next_override_en;
-    word_t              pc_next_override;
-
-    word_t              mtvec;
-    word_t              mepc;
-
-    // Hazard control
-    logic               stall_IF;
-    logic               stall_ID;
-    logic               flush_EX;
-
+    // Straight from the datapath
     logic               memory_write_en_raw;
+
+    // Effective write-enable signal after any suppression due to exceptions
+    logic               memory_write_en_eff;
+
+    assign memory_write_en = memory_write_en_eff;
 
     controller u_controller (
         .instruction         (instruction),
@@ -68,19 +81,30 @@ module pipeline_core
         .controller_exception(controller_exception_IF)
     );
 
-    // TODO: Younger instructions in IF/ID/EX are not yet squashed on an exception,
-    // nor is the register file write of the excepting instruction suppressed in WB
-    assign exception           = exception_MEM != EXCEPT_NONE;
-    assign pc_next_override_en = exception || mret_en_EX;
-    assign pc_next_override    = exception ? mtvec : mepc;
+    pipeline_exception_unit u_exception_unit (
+        .controller_exception(controller_exception_MEM),
+        .datapath_exception  (datapath_exception_MEM),
+        .memory_write_en_in  (memory_write_en_raw),
+        .memory_write_en_out (memory_write_en_eff),
+        .exception           (exception_MEM),
+        .pc                  (instruction_addr_MEM),
+        .trap_pc             (trap_pc),
+        .trap_cause          (trap_cause),
+        .mret_en_in          (mret_en_EX),
+        .mret_en_out         (mret_en_EX_hazard),
+        .mtvec               (mtvec),
+        .mepc                (mepc),
+        .pc_next_override_en (pc_next_override_en),
+        .pc_next_override    (pc_next_override)
+    );
 
     // No Zicsr instructions yet, so the CSRs are only written on trap entry
     machine_csr u_machine_csr (
         .clk           (clk),
         .reset         (reset),
-        .trap_enter    (exception),
-        .trap_pc       (instruction_addr_MEM),
-        .trap_cause    (word_t'(exception_MEM)),  // Exceptions only (interrupt bit clear)
+        .trap_enter    (exception_MEM),
+        .trap_pc       (trap_pc),
+        .trap_cause    (trap_cause),
         .csr_addr      ('0),
         .csr_read_data (),
         .csr_write_en  (1'b0),
@@ -90,11 +114,18 @@ module pipeline_core
         .mtvec         (mtvec)
     );
 
-    // TODO: No hazard unit yet, so programs must be free of hazards
+    // TODO: No stalls or forwarding yet, so programs must be free of data/control hazards
     // (like hex/instr/sum_loop_mixed_ops_nop_padded.hex)
-    assign stall_IF = 1'b0;
-    assign stall_ID = 1'b0;
-    assign flush_EX = 1'b0;
+    pipeline_hazard_unit u_hazard_unit (
+        .exception_MEM(exception_MEM),
+        .mret_en_EX   (mret_en_EX_hazard),
+        .stall_IF     (stall_IF),
+        .stall_ID     (stall_ID),
+        .flush_ID     (flush_ID),
+        .flush_EX     (flush_EX),
+        .flush_MEM    (flush_MEM),
+        .flush_WB     (flush_WB)
+    );
 
     pipeline_datapath u_datapath (
         .clk                     (clk),
@@ -113,7 +144,10 @@ module pipeline_core
         .controller_exception_IF (controller_exception_IF),
         .stall_IF                (stall_IF),
         .stall_ID                (stall_ID),
+        .flush_ID                (flush_ID),
         .flush_EX                (flush_EX),
+        .flush_MEM               (flush_MEM),
+        .flush_WB                (flush_WB),
         .memory_read_data_raw_MEM(memory_read_data_raw),
         .memory_word_addr_MEM    (memory_word_addr),
         .memory_write_en_MEM     (memory_write_en_raw),
@@ -121,12 +155,10 @@ module pipeline_core
         .memory_write_strobe_MEM (memory_write_strobe),
         .pc_next_override_en_IF  (pc_next_override_en),
         .pc_next_override_IF     (pc_next_override),
-        .exception_MEM           (exception_MEM),
+        .controller_exception_MEM(controller_exception_MEM),
+        .datapath_exception_MEM  (datapath_exception_MEM),
         .instruction_addr_MEM    (instruction_addr_MEM),
         .mret_en_IF              (mret_en_IF),
         .mret_en_EX              (mret_en_EX)
     );
-
-    // Suppress memory writes if an exception occurs
-    assign memory_write_en = memory_write_en_raw && !exception;
 endmodule

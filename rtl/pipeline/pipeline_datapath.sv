@@ -25,7 +25,11 @@ module pipeline_datapath
     // Stall and flush signals for handling hazards
     input logic                stall_IF,
     input logic                stall_ID,
+
+    input logic                flush_ID,
     input logic                flush_EX,
+    input logic                flush_MEM,
+    input logic                flush_WB,
 
     // LSU <-> data memory
     input  word_t              memory_read_data_raw_MEM,
@@ -38,8 +42,9 @@ module pipeline_datapath
     input  logic               pc_next_override_en_IF,
     input  word_t              pc_next_override_IF,
 
-    // Exception of the instruction in the MEM stage, from where all exceptions is taken
-    output exception_t         exception_MEM,  // Control or datapath exception
+    // Exceptions corresponding to the instruction in the MEM stage, from where all exceptions are taken
+    output exception_t         controller_exception_MEM,  // controller_exception_IF pipelined down to MEM
+    output exception_t         datapath_exception_MEM,
     output word_t              instruction_addr_MEM,  // Trap PC
 
     // To tell the exception unit to return from the exception handler by overriding the PC
@@ -102,7 +107,7 @@ module pipeline_datapath
     word_t    instruction_addr_ID;  // For computing the branch/jump target address in EX
 
     always_ff @(posedge clk) begin
-        if (reset) begin
+        if (reset || flush_ID) begin
             control_ID <= CONTROL_NOP;
         end else if (!stall_ID) begin
             control_ID          <= control_IF;
@@ -279,7 +284,7 @@ module pipeline_datapath
     word_t          pc_plus_4_MEM;  // For eventually writing to the register file in WB
 
     always_ff @(posedge clk) begin
-        if (reset) begin
+        if (reset || flush_MEM) begin
             control_MEM               <= CONTROL_NOP;
             instr_addr_misaligned_MEM <= 1'b0;
         end else begin
@@ -324,17 +329,18 @@ module pipeline_datapath
     // =========================================================================
 
     // Exceptions are carried down the pipeline with their instruction and only taken in MEM
-    always_comb begin
-        exception_MEM = EXCEPT_NONE;
 
-        if (control_MEM.controller_exception != EXCEPT_NONE)  // Controller exceptions take precedence
-            exception_MEM = control_MEM.controller_exception;
-        else if (instr_addr_misaligned_MEM)
-            exception_MEM = EXCEPT_INSTR_ADDR_MISALIGNED;
+    assign controller_exception_MEM = control_MEM.controller_exception;
+
+    always_comb begin
+        datapath_exception_MEM = EXCEPT_NONE;
+
+        if (instr_addr_misaligned_MEM)
+            datapath_exception_MEM = EXCEPT_INSTR_ADDR_MISALIGNED;
         else if (load_addr_misaligned_MEM)  // LSU must only ever assert if load operation
-            exception_MEM = EXCEPT_LOAD_ADDR_MISALIGNED;
+            datapath_exception_MEM = EXCEPT_LOAD_ADDR_MISALIGNED;
         else if (store_addr_misaligned_MEM)  // LSU must only ever assert if store operation
-            exception_MEM = EXCEPT_STORE_ADDR_MISALIGNED;
+            datapath_exception_MEM = EXCEPT_STORE_ADDR_MISALIGNED;
     end
 
 
@@ -351,7 +357,7 @@ module pipeline_datapath
     word_t    pc_plus_4_WB;
 
     always_ff @(posedge clk) begin
-        if (reset) begin
+        if (reset || flush_WB) begin
             control_WB       <= CONTROL_NOP;
         end else begin
             control_WB       <= control_MEM;

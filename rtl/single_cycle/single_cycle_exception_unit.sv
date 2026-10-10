@@ -19,7 +19,7 @@ module single_cycle_exception_unit
     // Trap return
     input  logic      mret_en,
 
-    // Program counter redirection on trap entry or return
+    // Program counter override on trap entry or return
     input  word_t     mepc,
     input  word_t     mtvec,
     output logic      pc_next_override_en,

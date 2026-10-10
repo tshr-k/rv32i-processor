@@ -3,10 +3,10 @@ import random
 import cocotb
 from cocotb.triggers import Timer
 from models.controller_model import Exception
-from models.exception_unit_model import ExceptionUnitInputs, ExceptionUnitModel
 from models.machine_csr_model import ALIGN_4_BYTE_MASK
 
 from tb.bits_32 import Bits32
+from tb.models.single_cycle_exception_unit_model import ExceptionUnitInputs, ExceptionUnitModel
 
 
 async def test_exception_unit_inputs(dut, inputs: ExceptionUnitInputs) -> None:

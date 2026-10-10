@@ -36,5 +36,5 @@ module single_cycle_exception_unit
         : word_t'(datapath_exception);
 
     assign pc_next_override_en = exception || mret_en;
-    assign pc_next_override    = exception ? mtvec : mepc;
+    assign pc_next_override    = exception ? mtvec : mepc;  // Exception takes precedence over MRET
 endmodule

@@ -53,6 +53,8 @@ package controller_pkg;
         pc_next_sel_t       pc_next_sel;
 
         exception_t         controller_exception;
+
+        logic               mret_en;
     } control_t;
 
     localparam control_t CONTROL_NOP = control_t'{
@@ -65,6 +67,7 @@ package controller_pkg;
         instruction_fmt:      INSTR_FMT_R,
         branch_condition:     BRANCH_IF_EQ,
         pc_next_sel:          PC_NEXT_PLUS_4,
-        controller_exception: EXCEPT_NONE
+        controller_exception: EXCEPT_NONE,
+        mret_en:              1'b0
     };
 endpackage

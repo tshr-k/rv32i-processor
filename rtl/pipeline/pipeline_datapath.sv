@@ -40,7 +40,11 @@ module pipeline_datapath
 
     // Exception of the instruction in the MEM stage, from where all exceptions is taken
     output exception_t         exception_MEM,  // Control or datapath exception
-    output word_t              instruction_addr_MEM  // Trap PC
+    output word_t              instruction_addr_MEM,  // Trap PC
+
+    // To tell the exception unit to return from the exception handler by overriding the PC
+    input  logic               mret_en_IF,
+    output logic               mret_en_EX  // We must wait until the previous instruction's exceptions and branch decisions have been taken in MEM
 );
     // =========================================================================
     // IF: Instruction fetch
@@ -59,7 +63,8 @@ module pipeline_datapath
         instruction_fmt      : instruction_fmt_IF,
         branch_condition     : branch_condition_IF,
         pc_next_sel          : pc_next_sel_IF,
-        controller_exception : controller_exception_IF
+        controller_exception : controller_exception_IF,
+        mret_en              : mret_en_IF
     };
 
     // Forward declarations
@@ -253,6 +258,9 @@ module pipeline_datapath
 
     assign instr_addr_misaligned_EX = pc_redirect_en_EX && |pc_redirect_target_EX[1:0];
 
+    // Tell the exception unit to return from the exception handler by overriding the PC
+    assign mret_en_EX = control_EX.mret_en;
+
 
     // =========================================================================
     // MEM: Memory access
@@ -310,6 +318,25 @@ module pipeline_datapath
 
 
     // =========================================================================
+    // Exceptions
+    // =========================================================================
+
+    // Exceptions are carried down the pipeline with their instruction and only taken in MEM
+    always_comb begin
+        exception_MEM = EXCEPT_NONE;
+
+        if (control_MEM.controller_exception != EXCEPT_NONE)  // Controller exceptions take precedence
+            exception_MEM = control_MEM.controller_exception;
+        else if (instr_addr_misaligned_MEM)
+            exception_MEM = EXCEPT_INSTR_ADDR_MISALIGNED;
+        else if (load_addr_misaligned_MEM)  // LSU must only ever assert if load operation
+            exception_MEM = EXCEPT_LOAD_ADDR_MISALIGNED;
+        else if (store_addr_misaligned_MEM)  // LSU must only ever assert if store operation
+            exception_MEM = EXCEPT_STORE_ADDR_MISALIGNED;
+    end
+
+
+    // =========================================================================
     // WB: Write back
     // =========================================================================
 
@@ -346,24 +373,5 @@ module pipeline_datapath
             RF_WRITE_PC_PLUS_4: rf_write_data_WB = pc_plus_4_WB;
             RF_WRITE_IMM:       rf_write_data_WB = immediate_WB;
         endcase
-    end
-
-
-    // =========================================================================
-    // Exceptions
-    // =========================================================================
-
-    // Exceptions are carried down the pipeline with their instruction and only taken in MEM
-    always_comb begin
-        exception_MEM = EXCEPT_NONE;
-
-        if (control_MEM.controller_exception != EXCEPT_NONE)  // Controller exceptions take precedence
-            exception_MEM = control_MEM.controller_exception;
-        else if (instr_addr_misaligned_MEM)
-            exception_MEM = EXCEPT_INSTR_ADDR_MISALIGNED;
-        else if (load_addr_misaligned_MEM)  // LSU must only ever assert if load operation
-            exception_MEM = EXCEPT_LOAD_ADDR_MISALIGNED;
-        else if (store_addr_misaligned_MEM)  // LSU must only ever assert if store operation
-            exception_MEM = EXCEPT_STORE_ADDR_MISALIGNED;
     end
 endmodule

@@ -33,6 +33,7 @@ module pipeline_core
     pc_next_sel_t       pc_next_sel_IF;
 
     logic               mret_en_IF;
+    logic               mret_en_EX;
     exception_t         controller_exception_IF;
 
     // Exceptions are taken in MEM
@@ -70,7 +71,7 @@ module pipeline_core
     // TODO: Younger instructions in IF/ID/EX are not yet squashed on an exception,
     // nor is the register file write of the excepting instruction suppressed in WB
     assign exception           = exception_MEM != EXCEPT_NONE;
-    assign pc_next_override_en = exception || mret_en_IF;
+    assign pc_next_override_en = exception || mret_en_EX;
     assign pc_next_override    = exception ? mtvec : mepc;
 
     // No Zicsr instructions yet, so the CSRs are only written on trap entry
@@ -121,7 +122,9 @@ module pipeline_core
         .pc_next_override_en_IF  (pc_next_override_en),
         .pc_next_override_IF     (pc_next_override),
         .exception_MEM           (exception_MEM),
-        .instruction_addr_MEM    (instruction_addr_MEM)
+        .instruction_addr_MEM    (instruction_addr_MEM),
+        .mret_en_IF              (mret_en_IF),
+        .mret_en_EX              (mret_en_EX)
     );
 
     // Suppress memory writes if an exception occurs

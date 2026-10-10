@@ -7,6 +7,8 @@ module single_cycle_exception_unit
     // For suppressing in case of an exception
     input  logic      rf_write_en_in,
     output logic      rf_write_en_out,
+    input  logic      memory_write_en_in,
+    output logic      memory_write_en_out,
 
     // Trap entry, to the machine CSRs
     output logic      exception,
@@ -23,7 +25,8 @@ module single_cycle_exception_unit
     output logic      pc_next_override_en,
     output word_t     pc_next_override
 );
-    assign rf_write_en_out = rf_write_en_in && !exception;
+    assign rf_write_en_out     = rf_write_en_in     && !exception;
+    assign memory_write_en_out = memory_write_en_in && !exception;
 
     assign exception = (controller_exception != EXCEPT_NONE)
                     || (datapath_exception   != EXCEPT_NONE);

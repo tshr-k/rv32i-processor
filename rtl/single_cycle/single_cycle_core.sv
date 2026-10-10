@@ -18,8 +18,8 @@ module single_cycle_core
     output word_t       instruction_addr,
     input  word_t       instruction
 );
-    // Control signals straight from the controller
-    logic               rf_write_en;
+    // Straight from the controller
+    logic               rf_write_en_raw;
     rf_write_data_sel_t rf_write_data_sel;
 
     alu_op_t            alu_op;
@@ -44,13 +44,18 @@ module single_cycle_core
     word_t              mtvec;
     word_t              mepc;
 
-    // Effective control signals after any suppression due to exceptions
-    logic               rf_write_en_eff;
+    // Straight from the datapath
     logic               memory_write_en_raw;
+
+    // Effective write-enable signals after any suppression due to exceptions
+    logic               rf_write_en_eff;
+    logic               memory_write_en_eff;
+
+    assign memory_write_en = memory_write_en_eff;
 
     controller u_controller (
         .instruction         (instruction),
-        .rf_write_en         (rf_write_en),
+        .rf_write_en         (rf_write_en_raw),
         .rf_write_data_sel   (rf_write_data_sel),
         .alu_op              (alu_op),
         .alu_a_sel           (alu_a_sel),
@@ -66,8 +71,10 @@ module single_cycle_core
     single_cycle_exception_unit u_exception_unit (
         .controller_exception(controller_exception),
         .datapath_exception  (datapath_exception),
-        .rf_write_en_in      (rf_write_en),
+        .rf_write_en_in      (rf_write_en_raw),
         .rf_write_en_out     (rf_write_en_eff),
+        .memory_write_en_in  (memory_write_en_raw),
+        .memory_write_en_out (memory_write_en_eff),
         .exception           (exception),
         .pc                  (instruction_addr),
         .trap_pc             (trap_pc),
@@ -118,7 +125,4 @@ module single_cycle_core
         .pc_next_override    (pc_next_override),
         .datapath_exception  (datapath_exception)
     );
-
-    // Suppress memory writes if an exception occurs
-    assign memory_write_en = memory_write_en_raw && !exception;
 endmodule

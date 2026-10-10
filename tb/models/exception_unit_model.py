@@ -10,6 +10,7 @@ class ExceptionUnitInputs:
     controller_exception: Exception
     datapath_exception: Exception
     rf_write_en: bool
+    memory_write_en: bool
     pc: int
     mret_en: bool
     mtvec: int
@@ -19,6 +20,7 @@ class ExceptionUnitInputs:
 @dataclass(frozen=True)
 class ExceptionUnitOutputs:
     rf_write_en: bool
+    memory_write_en: bool
     exception: bool
     trap_pc: int
     trap_cause: Exception
@@ -47,6 +49,7 @@ class ExceptionUnitModel:
 
         return ExceptionUnitOutputs(
             rf_write_en=inputs.rf_write_en and not exception,
+            memory_write_en=inputs.memory_write_en and not exception,
             exception=exception,
             trap_pc=Bits32(inputs.pc).u,
             trap_cause=trap_cause,

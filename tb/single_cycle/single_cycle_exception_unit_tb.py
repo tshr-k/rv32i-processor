@@ -15,6 +15,7 @@ async def test_exception_unit_inputs(dut, inputs: ExceptionUnitInputs) -> None:
     dut.controller_exception.value = inputs.controller_exception.value
     dut.datapath_exception.value = inputs.datapath_exception.value
     dut.rf_write_en_in.value = inputs.rf_write_en
+    dut.memory_write_en_in.value = inputs.memory_write_en
     dut.pc.value = inputs.pc
     dut.mret_en.value = inputs.mret_en
     dut.mtvec.value = inputs.mtvec
@@ -24,6 +25,7 @@ async def test_exception_unit_inputs(dut, inputs: ExceptionUnitInputs) -> None:
     expected = model(inputs)
     actual = {
         "rf_write_en": bool(int(dut.rf_write_en_out.value)),
+        "memory_write_en": bool(int(dut.memory_write_en_out.value)),
         "exception": bool(int(dut.exception.value)),
         "trap_pc": int(dut.trap_pc.value),
         "trap_cause": int(dut.trap_cause.value),
@@ -33,6 +35,7 @@ async def test_exception_unit_inputs(dut, inputs: ExceptionUnitInputs) -> None:
 
     assert actual == {
         "rf_write_en": expected.rf_write_en,
+        "memory_write_en": expected.memory_write_en,
         "exception": expected.exception,
         "trap_pc": expected.trap_pc,
         "trap_cause": expected.trap_cause.value,
@@ -45,6 +48,7 @@ def random_inputs(
     controller_exception: Exception | None = None,
     datapath_exception: Exception | None = None,
     rf_write_en: bool | None = None,
+    memory_write_en: bool | None = None,
     mret_en: bool | None = None,
 ) -> ExceptionUnitInputs:
     return ExceptionUnitInputs(
@@ -55,9 +59,13 @@ def random_inputs(
             random.choice(list(Exception)) if datapath_exception is None else datapath_exception
         ),
         rf_write_en=random.choice([True, False]) if rf_write_en is None else rf_write_en,
+        memory_write_en=(
+            random.choice([True, False]) if memory_write_en is None else memory_write_en
+        ),
         pc=Bits32.random().u,
         mret_en=random.choice([True, False]) if mret_en is None else mret_en,
-        mtvec=Bits32.random().u & ALIGN_4_BYTE_MASK,  # mtvec is always word-aligned (direct mode only)
+        mtvec=Bits32.random().u
+        & ALIGN_4_BYTE_MASK,  # mtvec is always word-aligned (direct mode only)
         mepc=Bits32.random().u & ALIGN_4_BYTE_MASK,  # mepc is always word-aligned
     )
 
@@ -67,8 +75,11 @@ async def test_exception_unit_all_exception_pairs(dut):
     for controller_exception in Exception:
         for datapath_exception in Exception:
             for rf_write_en in [True, False]:
-                inputs = random_inputs(controller_exception, datapath_exception, rf_write_en)
-                await test_exception_unit_inputs(dut, inputs)
+                for memory_write_en in [True, False]:
+                    inputs = random_inputs(
+                        controller_exception, datapath_exception, rf_write_en, memory_write_en
+                    )
+                    await test_exception_unit_inputs(dut, inputs)
 
 
 @cocotb.test

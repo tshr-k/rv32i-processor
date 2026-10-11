@@ -70,4 +70,16 @@ package controller_pkg;
         controller_exception: EXCEPT_NONE,
         mret_en:              1'b0
     };
+
+    typedef enum logic [1:0] {
+        RS1_FWD_NONE,
+        RS1_FWD_MEM,
+        RS1_FWD_WB
+    } rs1_forward_sel_t;
+
+    typedef enum logic [1:0] {
+        RS2_FWD_NONE,
+        RS2_FWD_MEM,
+        RS2_FWD_WB
+    } rs2_forward_sel_t;
 endpackage

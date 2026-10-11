@@ -40,6 +40,22 @@ module pipeline_core
     logic               flush_WB;
     logic               mret_en_EX_hazard;  // mret_en_EX, passed on by the exception unit
 
+    // Hazard detection
+    rs1_forward_sel_t   rs1_forward_sel_EX;
+    rs2_forward_sel_t   rs2_forward_sel_EX;
+    register_addr_t     rf_read_addr_1_EX;
+    register_addr_t     rf_read_addr_2_EX;
+    register_addr_t     rf_write_addr_MEM;
+    logic               rf_write_en_MEM;
+    register_addr_t     rf_write_addr_WB;
+    logic               rf_write_en_WB;
+    register_addr_t     rf_read_addr_1_ID;
+    register_addr_t     rf_read_addr_2_ID;
+    register_addr_t     rf_write_addr_EX;
+    logic               is_load_EX;
+    logic               pc_redirect_en_EX;  // Asserted on a jump or taken-branch instruction
+
+
     // Control signals straight from the controller, for the instruction being fetched
     logic               rf_write_en_IF;
     rf_write_data_sel_t rf_write_data_sel_IF;
@@ -117,15 +133,29 @@ module pipeline_core
     // TODO: No stalls or forwarding yet, so programs must be free of data/control hazards
     // (like hex/instr/sum_loop_mixed_ops_nop_padded.hex)
     pipeline_hazard_unit u_hazard_unit (
-        .exception_MEM(exception_MEM),
-        .mret_en_EX   (mret_en_EX_hazard),
-        .stall_IF     (stall_IF),
-        .stall_ID     (stall_ID),
-        .flush_ID     (flush_ID),
-        .flush_EX     (flush_EX),
-        .flush_MEM    (flush_MEM),
-        .flush_WB     (flush_WB)
+        .rf_read_addr_1_EX (rf_read_addr_1_EX),
+        .rf_read_addr_2_EX (rf_read_addr_2_EX),
+        .rf_write_addr_MEM (rf_write_addr_MEM),
+        .rf_write_en_MEM   (rf_write_en_MEM),
+        .rf_write_addr_WB  (rf_write_addr_WB),
+        .rf_write_en_WB    (rf_write_en_WB),
+        .rf_read_addr_1_ID (rf_read_addr_1_ID),
+        .rf_read_addr_2_ID (rf_read_addr_2_ID),
+        .rf_write_addr_EX  (rf_write_addr_EX),
+        .is_load_EX        (is_load_EX),
+        .pc_redirect_en_EX (pc_redirect_en_EX),
+        .exception_MEM     (exception_MEM),
+        .mret_en_EX        (mret_en_EX_hazard),
+        .stall_IF          (stall_IF),
+        .stall_ID          (stall_ID),
+        .flush_ID          (flush_ID),
+        .flush_EX          (flush_EX),
+        .flush_MEM         (flush_MEM),
+        .flush_WB          (flush_WB),
+        .rs1_forward_sel_EX(rs1_forward_sel_EX),
+        .rs2_forward_sel_EX(rs2_forward_sel_EX)
     );
+
 
     pipeline_datapath u_datapath (
         .clk                     (clk),
@@ -148,6 +178,19 @@ module pipeline_core
         .flush_EX                (flush_EX),
         .flush_MEM               (flush_MEM),
         .flush_WB                (flush_WB),
+        .rs1_forward_sel_EX      (rs1_forward_sel_EX),
+        .rs2_forward_sel_EX      (rs2_forward_sel_EX),
+        .rf_read_addr_1_EX       (rf_read_addr_1_EX),
+        .rf_read_addr_2_EX       (rf_read_addr_2_EX),
+        .rf_write_addr_MEM       (rf_write_addr_MEM),
+        .rf_write_en_MEM         (rf_write_en_MEM),
+        .rf_write_addr_WB        (rf_write_addr_WB),
+        .rf_write_en_WB          (rf_write_en_WB),
+        .rf_read_addr_1_ID       (rf_read_addr_1_ID),
+        .rf_read_addr_2_ID       (rf_read_addr_2_ID),
+        .rf_write_addr_EX        (rf_write_addr_EX),
+        .is_load_EX              (is_load_EX),
+        .pc_redirect_en_EX       (pc_redirect_en_EX),
         .memory_read_data_raw_MEM(memory_read_data_raw),
         .memory_word_addr_MEM    (memory_word_addr),
         .memory_write_en_MEM     (memory_write_en_raw),

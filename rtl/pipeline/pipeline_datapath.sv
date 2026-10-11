@@ -22,14 +22,34 @@ module pipeline_datapath
     input  pc_next_sel_t       pc_next_sel_IF,
     input  exception_t         controller_exception_IF,
 
-    // Stall and flush signals for handling hazards
-    input logic                stall_IF,
-    input logic                stall_ID,
+    // Stall, flush and forwarding control signals for handling hazards
+    input  logic               stall_IF,
+    input  logic               stall_ID,
 
-    input logic                flush_ID,
-    input logic                flush_EX,
-    input logic                flush_MEM,
-    input logic                flush_WB,
+    input  logic               flush_ID,
+    input  logic               flush_EX,
+    input  logic               flush_MEM,
+    input  logic               flush_WB,
+
+    input  rs1_forward_sel_t   rs1_forward_sel_EX,
+    input  rs2_forward_sel_t   rs2_forward_sel_EX,
+
+    // For data hazard detection
+    output register_addr_t     rf_read_addr_1_EX,
+    output register_addr_t     rf_read_addr_2_EX,
+    output register_addr_t     rf_write_addr_MEM,
+    output logic               rf_write_en_MEM,
+    output register_addr_t     rf_write_addr_WB,
+    output logic               rf_write_en_WB,
+
+    // For load-use hazard detection
+    output register_addr_t     rf_read_addr_1_ID,
+    output register_addr_t     rf_read_addr_2_ID,
+    output register_addr_t     rf_write_addr_EX,
+    output logic               is_load_EX,
+
+    // For control hazard detection
+    output logic               pc_redirect_en_EX,  // Asserted on a jump or taken-branch instruction
 
     // LSU <-> data memory
     input  word_t              memory_read_data_raw_MEM,
@@ -72,8 +92,7 @@ module pipeline_datapath
         mret_en              : mret_en_IF
     };
 
-    // Forward declarations
-    logic  pc_redirect_en_EX;  // Asserted on a jump or taken-branch instruction
+    // Forward declaration
     word_t pc_redirect_target_EX;
 
     // Program counter register
@@ -118,13 +137,9 @@ module pipeline_datapath
     end
 
     // Forward declarations
-    register_addr_t rf_write_addr_WB;
-    logic           rf_write_en_WB;
     word_t          rf_write_data_WB;
 
     // Register file
-    register_addr_t rf_read_addr_1_ID;
-    register_addr_t rf_read_addr_2_ID;
     word_t          rf_read_data_1_ID;
     word_t          rf_read_data_2_ID;
 
@@ -170,7 +185,6 @@ module pipeline_datapath
     word_t          immediate_EX;
 
     word_t          pc_plus_4_EX;  // For eventually writing to the register file in WB
-    register_addr_t rf_write_addr_EX;  // For eventually writing to the register file in WB
 
     always_ff @(posedge clk) begin
         if (reset || flush_EX) begin
@@ -183,7 +197,33 @@ module pipeline_datapath
             immediate_EX        <= immediate_ID;
             pc_plus_4_EX        <= pc_plus_4_ID;
             rf_write_addr_EX    <= rf_write_addr_ID;
+
+            // For determining if forwarding from MEM or WB is required
+            rf_read_addr_1_EX   <= rf_read_addr_1_ID;
+            rf_read_addr_2_EX   <= rf_read_addr_2_ID;
         end
+    end
+
+    // Allow forwarding of the register file write data from WB or MEM to EX
+    word_t rf_read_data_1_EX_eff;
+    word_t rf_read_data_2_EX_eff;
+    word_t forward_data_MEM;  // Data forwarded from MEM to EX
+
+    always_comb begin
+        rf_read_data_1_EX_eff = 'x;
+        rf_read_data_2_EX_eff = 'x;
+
+        unique case (rs1_forward_sel_EX)
+            RS1_FWD_NONE: rf_read_data_1_EX_eff = rf_read_data_1_EX;
+            RS1_FWD_MEM:  rf_read_data_1_EX_eff = forward_data_MEM;
+            RS1_FWD_WB:   rf_read_data_1_EX_eff = rf_write_data_WB;
+        endcase
+
+        unique case (rs2_forward_sel_EX)
+            RS2_FWD_NONE: rf_read_data_2_EX_eff = rf_read_data_2_EX;
+            RS2_FWD_MEM:  rf_read_data_2_EX_eff = forward_data_MEM;
+            RS2_FWD_WB:   rf_read_data_2_EX_eff = rf_write_data_WB;
+        endcase
     end
 
     // ALU
@@ -196,12 +236,12 @@ module pipeline_datapath
         alu_b_EX = 'x;
 
         unique case (control_EX.alu_a_sel)
-            ALU_A_RS1: alu_a_EX = rf_read_data_1_EX;
+            ALU_A_RS1: alu_a_EX = rf_read_data_1_EX_eff;
             ALU_A_PC:  alu_a_EX = instruction_addr_EX;
         endcase
 
         unique case (control_EX.alu_b_sel)
-            ALU_B_RS2: alu_b_EX = rf_read_data_2_EX;
+            ALU_B_RS2: alu_b_EX = rf_read_data_2_EX_eff;
             ALU_B_IMM: alu_b_EX = immediate_EX;
             ALU_B_4:   alu_b_EX = 4;
         endcase
@@ -220,8 +260,8 @@ module pipeline_datapath
     logic comparator_ltu_EX;
 
     comparator u_comparator (
-        .a  (rf_read_data_1_EX),
-        .b  (rf_read_data_2_EX),
+        .a  (rf_read_data_1_EX_eff),
+        .b  (rf_read_data_2_EX_eff),
         .eq (comparator_eq_EX),
         .lt (comparator_lt_EX),
         .ltu(comparator_ltu_EX)
@@ -260,6 +300,10 @@ module pipeline_datapath
         endcase
     end
 
+    // For detecting load-use hazards
+    assign is_load_EX = control_EX.rf_write_en
+                     && (control_EX.rf_write_data_sel == RF_WRITE_MEM_RES);
+
     // Can only be thrown on a jump or taken branch
     logic instr_addr_misaligned_EX;
 
@@ -276,7 +320,6 @@ module pipeline_datapath
     // EX->MEM pipeline register
     control_t       control_MEM;
     word_t          rf_read_data_2_MEM;
-    register_addr_t rf_write_addr_MEM;
     word_t          alu_result_MEM;
     word_t          immediate_MEM;
     logic           instr_addr_misaligned_MEM;
@@ -291,12 +334,28 @@ module pipeline_datapath
             control_MEM               <= control_EX;
             instr_addr_misaligned_MEM <= instr_addr_misaligned_EX;
             instruction_addr_MEM      <= instruction_addr_EX;
-            rf_read_data_2_MEM        <= rf_read_data_2_EX;
+            rf_read_data_2_MEM        <= rf_read_data_2_EX_eff;
             rf_write_addr_MEM         <= rf_write_addr_EX;
             alu_result_MEM            <= alu_result_EX;
             immediate_MEM             <= immediate_EX;
             pc_plus_4_MEM             <= pc_plus_4_EX;
         end
+    end
+
+    assign rf_write_en_MEM = control_MEM.rf_write_en;
+
+    // Data to forward to the EX stage
+    always_comb begin
+        forward_data_MEM = 'x;
+
+        unique case (control_MEM.rf_write_data_sel)
+            RF_WRITE_ALU_RES:   forward_data_MEM = alu_result_MEM;
+            RF_WRITE_PC_PLUS_4: forward_data_MEM = pc_plus_4_MEM;
+            RF_WRITE_IMM:       forward_data_MEM = immediate_MEM;
+
+            // Forwarding of the memory result won't actually happen until the WB stage, so this value is a don't care
+            RF_WRITE_MEM_RES:   forward_data_MEM = '0;
+        endcase
     end
 
     // Data memory LSU

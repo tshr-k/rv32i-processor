@@ -49,6 +49,7 @@ module single_cycle_datapath
     word_t alu_result;
     word_t load_data;
     word_t pc;
+    word_t pc_plus_4;
     word_t immediate;
 
     always_comb begin
@@ -57,7 +58,7 @@ module single_cycle_datapath
         unique case (rf_write_data_sel)
             RF_WRITE_ALU_RES:   rf_write_data = alu_result;
             RF_WRITE_MEM_RES:   rf_write_data = load_data;
-            RF_WRITE_PC_PLUS_4: rf_write_data = pc + 4;
+            RF_WRITE_PC_PLUS_4: rf_write_data = pc_plus_4;
 
             // To simplify control, the immediate is not routed through
             // the ALU (add zero) for the LUI instruction
@@ -129,7 +130,6 @@ module single_cycle_datapath
 
     // Program counter
     word_t pc_next;
-    word_t pc_plus_4;
     logic  take_branch;
 
     assign instruction_addr = pc;

@@ -39,7 +39,8 @@ module pipeline_hazard_unit
     logic load_use_hazard;
 
     assign control_hazard = pc_redirect_en_EX;
-    assign load_use_hazard = is_load_EX && (
+
+    assign load_use_hazard = is_load_EX  && (rf_write_addr_EX != 0) && (
         (rf_read_addr_1_ID == rf_write_addr_EX) ||
         (rf_read_addr_2_ID == rf_write_addr_EX)
     );
@@ -74,17 +75,18 @@ module pipeline_hazard_unit
     // Forwarding
     always_comb begin
         // The rf_write_data from the newer instruction in MEM has priority over the older one in WB
+        // No forwarding happens if the MEM or WB instruction was trying to write to register x0
         rs1_forward_sel_EX = RS1_FWD_NONE;
         rs2_forward_sel_EX = RS2_FWD_NONE;
 
-        if (rf_write_en_MEM && (rf_read_addr_1_EX == rf_write_addr_MEM))
+        if (rf_write_en_MEM && (rf_read_addr_1_EX == rf_write_addr_MEM) && (rf_write_addr_MEM != '0))
             rs1_forward_sel_EX = RS1_FWD_MEM;
-        else if (rf_write_en_WB && (rf_read_addr_1_EX == rf_write_addr_WB))
+        else if (rf_write_en_WB && (rf_read_addr_1_EX == rf_write_addr_WB) && (rf_write_addr_WB != '0))
             rs1_forward_sel_EX = RS1_FWD_WB;
 
-        if (rf_write_en_MEM && (rf_read_addr_2_EX == rf_write_addr_MEM))
+        if (rf_write_en_MEM && (rf_read_addr_2_EX == rf_write_addr_MEM) && (rf_write_addr_MEM != '0))
             rs2_forward_sel_EX = RS2_FWD_MEM;
-        else if (rf_write_en_WB && (rf_read_addr_2_EX == rf_write_addr_WB))
+        else if (rf_write_en_WB && (rf_read_addr_2_EX == rf_write_addr_WB) && (rf_write_addr_WB != '0))
             rs2_forward_sel_EX = RS2_FWD_WB;
     end
 endmodule

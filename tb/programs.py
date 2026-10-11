@@ -79,6 +79,13 @@ FORWARDING = Program(
     memory={0x08: 0x55, 0x20: 0x66},
 )
 
+FORWARDING_X0 = Program(
+    image_path=Path("hex/instr/forwarding_x0.hex"),
+    cycles=100,
+    registers={2: 1, 3: 1, 4: 2, 5: 0x40, 6: 3},
+    memory={0x40: 0x40},
+)
+
 LOAD_USE = Program(
     image_path=Path("hex/instr/load_use.hex"),
     cycles=100,
@@ -161,6 +168,7 @@ PROGRAMS = [
     MIXED_OPS,
     MIXED_OPS_NOP_PADDED,
     FORWARDING,
+    FORWARDING_X0,
     LOAD_USE,
     CONTROL_FLOW,
     TRAP_MISALIGNED,

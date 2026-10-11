@@ -1,0 +1,19 @@
+// Writes to x0, which must be discarded, so later reads of x0 must still see zero
+// rather than a value forwarded from MEM or WB
+00500013 // addi x0, x0, 5       // Discarded
+000000b3 // add  x1, x0, x0      // Both operands with x0 in MEM: x1 = 0
+00600013 // addi x0, x0, 6       // Discarded
+00100113 // addi x2, x0, 1       // x2 = 1
+002001b3 // add  x3, x0, x2      // rs1 with x0 in WB: x3 = 1
+12345037 // lui  x0, 0x12345     // Discarded
+00200213 // addi x4, x0, 2       // x4 = 2
+04000293 // addi x5, x0, 0x40    // x5 = 0x40
+0052a023 // sw   x5, 0(x5)       // mem[0x40] = 0x40
+0002a003 // lw   x0, 0(x5)       // Discarded
+00300313 // addi x6, x0, 3       // Load-use on x0: x6 = 3
+00900013 // addi x0, x0, 9       // Discarded
+0002a223 // sw   x0, 4(x5)       // Store data with x0 in MEM: mem[0x44] = 0
+00100013 // addi x0, x0, 1       // Discarded
+00700463 // beq  x0, x7, b1      // Taken, as x7 = 0
+00140413 // addi x8, x8, 1       // Skipped
+0000006f // jal  x0, 0           // b1: Halt

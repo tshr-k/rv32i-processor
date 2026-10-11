@@ -1,0 +1,33 @@
+// Loads whose results are used by the next instruction, which must stall for a cycle before
+// the load data can be forwarded from WB
+ffe00093 // addi x1, x0, -2      // x1 = 0xfffffffe
+00102023 // sw   x1, 0(x0)       // mem[0x00] = 0xfffffffe
+04000113 // addi x2, x0, 0x40
+00202223 // sw   x2, 4(x0)       // mem[0x04] = 0x40
+07f00193 // addi x3, x0, 0x7f
+04302023 // sw   x3, 0x40(x0)    // mem[0x40] = 0x7f
+00002203 // lw   x4, 0(x0)       // x4 = 0xfffffffe
+00320293 // addi x5, x4, 3       // Load-use on rs1: x5 = 1
+00402303 // lw   x6, 4(x0)       // x6 = 0x40
+00032383 // lw   x7, 0(x6)       // Load-use on the address: x7 = 0x7f
+00700433 // add  x8, x0, x7      // Load-use on rs2: x8 = 0x7f
+00002483 // lw   x9, 0(x0)       // x9 = 0xfffffffe
+00902423 // sw   x9, 8(x0)       // Load-use on the store data: mem[0x08] = 0xfffffffe
+00402503 // lw   x10, 4(x0)      // x10 = 0x40
+00100593 // addi x11, x0, 1      // Independent, so no stall
+00b50633 // add  x12, x10, x11   // Load data from WB: x12 = 0x41
+00000683 // lb   x13, 0(x0)      // x13 = 0xfffffffe
+00468463 // beq  x13, x4, l1     // Load-use on a branch: taken
+00170713 // addi x14, x14, 1     // Skipped
+00004783 // lbu  x15, 0(x0)      // l1: x15 = 0xfe
+00005803 // lhu  x16, 0(x0)      // x16 = 0xfffe
+00201883 // lh   x17, 2(x0)      // x17 = 0xffffffff
+40f80933 // sub  x18, x16, x15   // x16 from WB, x15 through the register file: x18 = 0xff00
+00000997 // auipc x19, 0         // x19 = 0x5c
+01898993 // addi x19, x19, 24    // x19 = 0x74
+01302623 // sw   x19, 12(x0)     // mem[0x0c] = 0x74
+00c02a03 // lw   x20, 12(x0)     // x20 = 0x74
+000a0ae7 // jalr x21, 0(x20)     // Load-use on a jump target: x21 = 0x70
+00170713 // addi x14, x14, 1     // Skipped
+00100b13 // addi x22, x0, 1      // x22 = 1
+0000006f // jal  x0, 0           // Halt

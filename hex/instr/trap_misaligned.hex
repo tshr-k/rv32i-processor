@@ -1,0 +1,26 @@
+// Misaligned loads, stores and jump targets, each of which traps to the handler at mtvec = 0x04
+// The handler counts the trap in x31, aligns the base register x6 and returns to retry the instruction
+0180006f // jal  x0, main
+001f8f93 // addi x31, x31, 1     // handler: Trap count
+ffc37313 // andi x6, x6, -4      // Align the base address
+30200073 // mret
+001f0f13 // addi x30, x30, 1     // Wrong path after mret
+001f0f13 // addi x30, x30, 1     // Wrong path after mret
+05500513 // addi x10, x0, 0x55   // main:
+02a02023 // sw   x10, 0x20(x0)   // mem[0x20] = 0x55
+02100313 // addi x6, x0, 0x21    // Older than the trapping load, so must still be written back
+00032383 // lw   x7, 0(x6)       // Traps once, then x7 = 0x55
+00138413 // addi x8, x7, 1       // Load-use stall before the trap, then runs once: x8 = 0x56
+02300313 // addi x6, x0, 0x23
+00031483 // lh   x9, 0(x6)       // Traps once, then x9 = 0x55
+06600593 // addi x11, x0, 0x66
+02600313 // addi x6, x0, 0x26
+00b32023 // sw   x11, 0(x6)      // Traps once, then mem[0x24] = 0x66
+02b00313 // addi x6, x0, 0x2b
+00b31023 // sh   x11, 0(x6)      // Traps once, then mem[0x28] = 0x66
+00000317 // auipc x6, 0
+01230313 // addi x6, x6, 18      // Target has bit 1 set
+00030667 // jalr x12, 0(x6)      // Traps once, then jumps to the aligned target
+00168693 // addi x13, x13, 1     // Skipped
+00100713 // addi x14, x0, 1      // Aligned target: x14 = 1
+0000006f // jal  x0, 0           // Halt

@@ -130,8 +130,6 @@ module pipeline_core
         .mtvec         (mtvec)
     );
 
-    // TODO: No stalls or forwarding yet, so programs must be free of data/control hazards
-    // (like hex/instr/sum_loop_mixed_ops_nop_padded.hex)
     pipeline_hazard_unit u_hazard_unit (
         .rf_read_addr_1_EX (rf_read_addr_1_EX),
         .rf_read_addr_2_EX (rf_read_addr_2_EX),

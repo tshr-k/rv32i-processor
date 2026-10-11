@@ -301,8 +301,8 @@ module pipeline_datapath
     end
 
     // For detecting load-use hazards
-    assign is_load_EX = control_EX.rf_write_en
-                     && (control_EX.rf_write_data_sel == RF_WRITE_MEM_RES);
+    assign is_load_EX = (control_EX.rf_write_data_sel == RF_WRITE_MEM_RES)
+                     && control_EX.rf_write_en;
 
     // Can only be thrown on a jump or taken branch
     logic instr_addr_misaligned_EX;
@@ -388,6 +388,7 @@ module pipeline_datapath
     // =========================================================================
 
     // Exceptions are carried down the pipeline with their instruction and only taken in MEM
+    // This is to allow handling memory faults etc. in the future
 
     assign controller_exception_MEM = control_MEM.controller_exception;
 

@@ -35,23 +35,25 @@ module pipeline_hazard_unit
     output rs1_forward_sel_t rs1_forward_sel_EX,
     output rs2_forward_sel_t rs2_forward_sel_EX
 );
-    // TODO: handle actual (control/datapath/load-use) hazards, not just flushing for exceptions
+    logic control_hazard;
+    logic load_use_hazard;
 
-    // Stalls haven't been implemented yet
-    assign stall_IF = 1'b0;
-    assign stall_ID = 1'b0;
-
-    // Forwarding hasn't been implemented yet
-    assign rs1_forward_sel_EX = RS1_FWD_NONE;
-    assign rs2_forward_sel_EX = RS2_FWD_NONE;
+    assign control_hazard = pc_redirect_en_EX;
+    assign load_use_hazard = is_load_EX && (
+        (rf_read_addr_1_ID == rf_write_addr_EX) ||
+        (rf_read_addr_2_ID == rf_write_addr_EX)
+    );
 
     always_comb begin
+        stall_IF = 1'b0;
+        stall_ID = 1'b0;
         flush_ID  = 1'b0;
         flush_EX  = 1'b0;
         flush_MEM = 1'b0;
         flush_WB  = 1'b0;
 
-        if (exception_MEM) begin  // Exception takes precedence over MRET
+        // From top to bottom priority: exceptions, MRET, control hazards, load-use hazards
+        if (exception_MEM) begin
             flush_ID  = 1'b1;
             flush_EX  = 1'b1;
             flush_MEM = 1'b1;
@@ -59,6 +61,30 @@ module pipeline_hazard_unit
         end else if (mret_en_EX) begin
             flush_ID  = 1'b1;
             flush_EX  = 1'b1;
+        end else if (control_hazard) begin
+            flush_ID = 1'b1;
+            flush_EX = 1'b1;
+        end else if (load_use_hazard) begin
+            stall_IF = 1'b1;
+            stall_ID = 1'b1;
+            flush_EX = 1'b1;
         end
+    end
+
+    // Forwarding
+    always_comb begin
+        // The rf_write_data from the newer instruction in MEM has priority over the older one in WB
+        rs1_forward_sel_EX = RS1_FWD_NONE;
+        rs2_forward_sel_EX = RS2_FWD_NONE;
+
+        if (rf_write_en_MEM && (rf_read_addr_1_EX == rf_write_addr_MEM))
+            rs1_forward_sel_EX = RS1_FWD_MEM;
+        else if (rf_write_en_WB && (rf_read_addr_1_EX == rf_write_addr_WB))
+            rs1_forward_sel_EX = RS1_FWD_WB;
+
+        if (rf_write_en_MEM && (rf_read_addr_2_EX == rf_write_addr_MEM))
+            rs2_forward_sel_EX = RS2_FWD_MEM;
+        else if (rf_write_en_WB && (rf_read_addr_2_EX == rf_write_addr_WB))
+            rs2_forward_sel_EX = RS2_FWD_WB;
     end
 endmodule

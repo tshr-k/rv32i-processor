@@ -1,4 +1,4 @@
-// Same program as sum_loop_mixed_ops.hex, padded with NOPs so that a 5-stage pipeline
+// Same program as mixed_ops.hex, padded with NOPs so that a 5-stage pipeline
 // without forwarding, stalling or flushing runs it correctly:
 //   - Two NOPs between dependent instructions, as the register file writes through from WB to ID
 //   - Two NOPs after branches and jumps, which resolve in EX, so the wrong-path fetches are harmless

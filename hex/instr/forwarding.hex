@@ -1,0 +1,41 @@
+// Data hazards between ALU-type instructions, resolved by forwarding to EX (no stalls needed)
+// In the pipeline, the instruction n places earlier is in MEM (n = 1) or WB (n = 2) when this one is in EX,
+// and the register file writes through from WB to ID for n = 3
+00a00093 // addi x1, x0, 10      // x1 = 10
+00508113 // addi x2, x1, 5       // rs1 from MEM: x2 = 15
+002081b3 // add  x3, x1, x2      // rs1 from WB, rs2 from MEM: x3 = 25
+40118233 // sub  x4, x3, x1      // rs1 from MEM, rs2 through the register file: x4 = 15
+00100293 // addi x5, x0, 1       // x5 = 1
+00228293 // addi x5, x5, 2       // x5 = 3
+00428293 // addi x5, x5, 4       // Newer x5 in MEM beats older x5 in WB: x5 = 7
+00528333 // add  x6, x5, x5      // Both operands from MEM: x6 = 14
+123453b7 // lui  x7, 0x12345     // Result is the immediate
+67838393 // addi x7, x7, 0x678   // Immediate forwarded from MEM: x7 = 0x12345678
+00000417 // auipc x8, 0          // x8 = 0x28
+00440413 // addi x8, x8, 4       // x8 = 0x2c
+05500493 // addi x9, x0, 0x55
+00902423 // sw   x9, 8(x0)       // Store data from MEM: mem[0x08] = 0x55
+02000513 // addi x10, x0, 0x20
+06600593 // addi x11, x0, 0x66
+00b52023 // sw   x11, 0(x10)     // Address base from WB, store data from MEM: mem[0x20] = 0x66
+00802603 // lw   x12, 8(x0)      // x12 = 0x55
+00052683 // lw   x13, 0(x10)     // x13 = 0x66
+00300713 // addi x14, x0, 3
+00300793 // addi x15, x0, 3
+00f70463 // beq  x14, x15, b1    // rs1 from WB, rs2 from MEM: taken
+00180813 // addi x16, x16, 1     // Skipped
+00700893 // addi x17, x0, 7      // b1:
+00089463 // bne  x17, x0, b2     // rs1 from MEM: taken
+00180813 // addi x16, x16, 1     // Skipped
+00100913 // addi x18, x0, 1      // b2:
+00090463 // beq  x18, x0, b3     // rs1 from MEM: not taken
+00900993 // addi x19, x0, 9      // x19 = 9
+00000a17 // auipc x20, 0         // b3: x20 = 0x74
+010a0a13 // addi x20, x20, 16    // x20 = 0x84
+000a0ae7 // jalr x21, 0(x20)     // Base from MEM: x21 = 0x80
+00180813 // addi x16, x16, 1     // Skipped
+000a8b13 // addi x22, x21, 0     // Link register through the register file: x22 = 0x80
+00800bef // jal  x23, j1         // x23 = 0x8c
+00180813 // addi x16, x16, 1     // Skipped
+004b8c13 // addi x24, x23, 4     // j1: x24 = 0x90
+0000006f // jal  x0, 0           // Halt

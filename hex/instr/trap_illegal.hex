@@ -1,0 +1,12 @@
+// An illegal instruction that would write a register, which must trap to the handler at mtvec = 0x04
+// without writing back, while older instructions complete and younger ones are squashed
+0080006f // jal  x0, main
+0000006f // jal  x0, 0           // handler: Halt
+00100093 // addi x1, x0, 1       // main: x1 = 1
+00200113 // addi x2, x0, 2       // x2 = 2
+05a00413 // addi x8, x0, 0x5a    // x8 = 0x5a
+02208433 // .word 0x02208433     // mul x8, x1, x2 (illegal without the M extension)
+00102023 // sw   x1, 0(x0)       // Squashed
+00300193 // addi x3, x0, 3       // Squashed
+00400213 // addi x4, x0, 4       // Squashed
+0000006f // jal  x0, 0           // Halt

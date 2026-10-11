@@ -1,0 +1,11 @@
+// An ecall, which must trap to the handler at mtvec = 0x04 while older instructions complete
+// and younger ones are squashed
+0080006f // jal  x0, main
+0000006f // jal  x0, 0           // handler: Halt
+00100093 // addi x1, x0, 1       // main: x1 = 1
+00200113 // addi x2, x0, 2       // x2 = 2
+00000073 // ecall
+00102023 // sw   x1, 0(x0)       // Squashed
+00300193 // addi x3, x0, 3       // Squashed
+00400213 // addi x4, x0, 4       // Squashed
+0000006f // jal  x0, 0           // Halt

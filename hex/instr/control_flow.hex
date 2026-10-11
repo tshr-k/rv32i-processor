@@ -1,0 +1,50 @@
+// Taken and not-taken branches for every condition, a loop, and a call and return
+// Wrong-path instructions increment x31, which must remain zero
+fff00093 // addi x1, x0, -1      // x1 = 0xffffffff
+00100113 // addi x2, x0, 1       // x2 = 1
+00108663 // beq  x1, x1, t1      // Taken
+001f8f93 // addi x31, x31, 1
+001f8f93 // addi x31, x31, 1
+00209663 // bne  x1, x2, t2      // t1: Taken
+001f8f93 // addi x31, x31, 1
+001f8f93 // addi x31, x31, 1
+0020c663 // blt  x1, x2, t3      // t2: Taken (-1 < 1)
+001f8f93 // addi x31, x31, 1
+001f8f93 // addi x31, x31, 1
+00116663 // bltu x2, x1, t4      // t3: Taken (1 < 0xffffffff)
+001f8f93 // addi x31, x31, 1
+001f8f93 // addi x31, x31, 1
+00115663 // bge  x2, x1, t5      // t4: Taken (1 >= -1)
+001f8f93 // addi x31, x31, 1
+001f8f93 // addi x31, x31, 1
+0020f663 // bgeu x1, x2, t6      // t5: Taken (0xffffffff >= 1)
+001f8f93 // addi x31, x31, 1
+001f8f93 // addi x31, x31, 1
+06208463 // beq  x1, x2, fail    // t6: Not taken
+001f0f13 // addi x30, x30, 1
+06109063 // bne  x1, x1, fail    // Not taken
+001f0f13 // addi x30, x30, 1
+04114c63 // blt  x2, x1, fail    // Not taken
+001f0f13 // addi x30, x30, 1
+0420e863 // bltu x1, x2, fail    // Not taken
+001f0f13 // addi x30, x30, 1
+0420d463 // bge  x1, x2, fail    // Not taken
+001f0f13 // addi x30, x30, 1
+04117063 // bgeu x2, x1, fail    // Not taken
+001f0f13 // addi x30, x30, 1     // x30 = 6
+00400193 // addi x3, x0, 4
+00320213 // addi x4, x4, 3       // loop:
+fff18193 // addi x3, x3, -1
+fe019ce3 // bne  x3, x0, loop    // x4 = 12
+014002ef // jal  x5, func        // x5 = 0x94
+00130313 // addi x6, x6, 1       // Runs once, after the return: x6 = 1
+01c0006f // jal  x0, done
+001f8f93 // addi x31, x31, 1
+001f8f93 // addi x31, x31, 1
+07700393 // addi x7, x0, 0x77    // func: x7 = 0x77
+00028067 // jalr x0, 0(x5)       // Return
+001f8f93 // addi x31, x31, 1
+001f8f93 // addi x31, x31, 1
+0000006f // jal  x0, 0           // done: Halt
+00100e93 // addi x29, x0, 1      // fail:
+0000006f // jal  x0, 0           // Halt

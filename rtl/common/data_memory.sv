@@ -1,6 +1,6 @@
-module data_memory
-    import rv32i_pkg::*;
-#(
+import rv32i_pkg::*;
+
+module data_memory #(
     parameter int unsigned DEPTH = 256
 ) (
     input  logic        clk,

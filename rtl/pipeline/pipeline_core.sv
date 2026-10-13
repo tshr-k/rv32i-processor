@@ -1,9 +1,9 @@
-module pipeline_core
-    import rv32i_pkg::*;
-    import alu_pkg::*;
-    import controller_pkg::*;
-    import lsu_pkg::*;
-(
+import rv32i_pkg::*;
+import alu_pkg::*;
+import controller_pkg::*;
+import lsu_pkg::*;
+
+module pipeline_core (
     input  logic        clk,
     input  logic        reset,
 

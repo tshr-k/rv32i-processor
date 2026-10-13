@@ -1,9 +1,9 @@
-module single_cycle_datapath
-    import rv32i_pkg::*;
-    import alu_pkg::*;
-    import controller_pkg::*;
-    import lsu_pkg::*;
-(
+import rv32i_pkg::*;
+import alu_pkg::*;
+import controller_pkg::*;
+import lsu_pkg::*;
+
+module single_cycle_datapath (
     input  logic               clk,
     input  logic               reset,
 

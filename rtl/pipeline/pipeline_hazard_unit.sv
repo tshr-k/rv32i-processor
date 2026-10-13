@@ -1,7 +1,7 @@
-module pipeline_hazard_unit
-    import rv32i_pkg::*;
-    import controller_pkg::*;
-(
+import rv32i_pkg::*;
+import controller_pkg::*;
+
+module pipeline_hazard_unit (
     // For data hazard detection
     input  register_addr_t rf_read_addr_1_EX,
     input  register_addr_t rf_read_addr_2_EX,

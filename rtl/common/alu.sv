@@ -1,7 +1,7 @@
-module alu
-    import rv32i_pkg::*;
-    import alu_pkg::*;
-(
+import rv32i_pkg::*;
+import alu_pkg::*;
+
+module alu (
     input  word_t   a,
     input  word_t   b,
     input  alu_op_t op,

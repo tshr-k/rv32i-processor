@@ -1,6 +1,6 @@
-module machine_csr
-    import rv32i_pkg::*;
-(
+import rv32i_pkg::*;
+
+module machine_csr (
     input  logic      clk,
     input  logic      reset,
 

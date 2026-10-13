@@ -1,6 +1,6 @@
-module instruction_memory
-    import rv32i_pkg::*;
-#(
+import rv32i_pkg::*;
+
+module instruction_memory #(
     parameter int unsigned DEPTH = 256
 ) (
     input  word_t addr,  // Byte address

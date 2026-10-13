@@ -1,6 +1,6 @@
-module comparator
-    import rv32i_pkg::*;
-(
+import rv32i_pkg::*;
+
+module comparator (
     input  word_t a,
     input  word_t b,
 

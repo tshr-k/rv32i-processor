@@ -1,7 +1,7 @@
-module lsu
-    import rv32i_pkg::*;
-    import lsu_pkg::*;
-(
+import rv32i_pkg::*;
+import lsu_pkg::*;
+
+module lsu (
     input  word_t       addr,  // Byte address
     input  memory_op_t  memory_op,
 
@@ -28,17 +28,15 @@ module lsu
     assign read_byte      = read_data_raw[8*int'(byte_offset)     +: 8];
     assign read_half_word = read_data_raw[16*int'(byte_offset[1]) +: 16];
 
-    assign load_addr_misaligned = (memory_op inside {MEM_LH, MEM_LHU} && addr[0])
+    assign load_addr_misaligned = ((memory_op == MEM_LH || memory_op == MEM_LHU) && addr[0])
                                || (memory_op == MEM_LW && |addr[1:0]);
 
     assign store_addr_misaligned = (memory_op == MEM_SH && addr[0])
                                 || (memory_op == MEM_SW && |addr[1:0]);
 
-    assign write_en = (memory_op inside {
-        MEM_SB,
-        MEM_SH,
-        MEM_SW
-    }) && !store_addr_misaligned;  // Suppress write if the address is misaligned
+    assign write_en = (memory_op == MEM_SB
+                   || memory_op == MEM_SH
+                   || memory_op == MEM_SW) && !store_addr_misaligned;  // Suppress write if the address is misaligned
 
     always_comb begin
         write_data_out    = write_data_in;

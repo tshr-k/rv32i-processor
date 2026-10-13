@@ -57,7 +57,7 @@ package controller_pkg;
         logic               mret_en;
     } control_t;
 
-    localparam control_t CONTROL_NOP = control_t'{
+    localparam control_t CONTROL_NOP = '{
         rf_write_en:          1'b0,
         rf_write_data_sel:    RF_WRITE_ALU_RES,
         alu_op:               ALU_ADD,

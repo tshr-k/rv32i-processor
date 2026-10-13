@@ -1,6 +1,6 @@
-module register_file
-    import rv32i_pkg::*;
-#(
+import rv32i_pkg::*;
+
+module register_file #(
     // Must stay disabled in the single-cycle core, where the bypass would form
     // a combinational loop (read data -> ALU -> write data -> read data)
     parameter bit WRITE_THROUGH = 1'b0

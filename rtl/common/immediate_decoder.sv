@@ -1,6 +1,6 @@
-module immediate_decoder
-    import rv32i_pkg::*;
-(
+import rv32i_pkg::*;
+
+module immediate_decoder (
     input  word_t            instruction,
     input  instruction_fmt_t instruction_fmt,
 

@@ -1,6 +1,6 @@
-module pipeline_exception_unit
-    import rv32i_pkg::*;
-(
+import rv32i_pkg::*;
+
+module pipeline_exception_unit (
     input exception_t controller_exception,
     input exception_t datapath_exception,
 

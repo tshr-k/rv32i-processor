@@ -1,6 +1,6 @@
-module single_cycle_top
-    import rv32i_pkg::*;
-#(
+import rv32i_pkg::*;
+
+module single_cycle_top #(
     parameter int unsigned INSTR_MEM_DEPTH = 256,
     parameter int unsigned DATA_MEM_DEPTH  = 256
 ) (

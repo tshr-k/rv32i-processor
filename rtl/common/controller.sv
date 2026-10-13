@@ -1,9 +1,9 @@
-module controller
-    import rv32i_pkg::*;
-    import alu_pkg::*;
-    import controller_pkg::*;
-    import lsu_pkg::*;
-(
+import rv32i_pkg::*;
+import alu_pkg::*;
+import controller_pkg::*;
+import lsu_pkg::*;
+
+module controller (
     input  word_t              instruction,
 
     output logic               rf_write_en,
@@ -64,7 +64,7 @@ module controller
         mret_en              = 1'b0;
         controller_exception = EXCEPT_NONE;
 
-        unique0 case (opcode)
+        case (opcode)
             OPCODE_R: begin
                 instruction_fmt   = INSTR_FMT_R;
                 rf_write_en       = 1'b1;
@@ -72,9 +72,9 @@ module controller
                 alu_a_sel         = ALU_A_RS1;
                 alu_b_sel         = ALU_B_RS2;
 
-                unique0 case (funct_3)
+                case (funct_3)
                     3'b000: begin  // ADD or SUB
-                        unique0 case (funct_7)
+                        case (funct_7)
                             7'b0000000: alu_op               = ALU_ADD;  // ADD
                             7'b0100000: alu_op               = ALU_SUB;  // SUB
                             default:    controller_exception = EXCEPT_ILLEGAL_INSTR;
@@ -82,35 +82,35 @@ module controller
                     end
 
                     3'b111: begin  // AND
-                        unique0 case (funct_7)
+                        case (funct_7)
                             7'b0000000: alu_op               = ALU_AND;
                             default:    controller_exception = EXCEPT_ILLEGAL_INSTR;
                         endcase
                     end
 
                     3'b110: begin  // OR
-                        unique0 case (funct_7)
+                        case (funct_7)
                             7'b0000000: alu_op               = ALU_OR;
                             default:    controller_exception = EXCEPT_ILLEGAL_INSTR;
                         endcase
                     end
 
                     3'b100: begin  // XOR
-                        unique0 case (funct_7)
+                        case (funct_7)
                             7'b0000000: alu_op               = ALU_XOR;
                             default:    controller_exception = EXCEPT_ILLEGAL_INSTR;
                         endcase
                     end
 
                     3'b001: begin  // SLL
-                        unique0 case (funct_7)
+                        case (funct_7)
                             7'b0000000: alu_op               = ALU_SLL;
                             default:    controller_exception = EXCEPT_ILLEGAL_INSTR;
                         endcase
                     end
 
                     3'b101: begin  // SRL or SRA
-                        unique0 case (funct_7)
+                        case (funct_7)
                             7'b0000000: alu_op               = ALU_SRL;  // SRL
                             7'b0100000: alu_op               = ALU_SRA;  // SRA
                             default:    controller_exception = EXCEPT_ILLEGAL_INSTR;
@@ -118,14 +118,14 @@ module controller
                     end
 
                     3'b010: begin  // SLT
-                        unique0 case (funct_7)
+                        case (funct_7)
                             7'b0000000: alu_op               = ALU_SLT;
                             default:    controller_exception = EXCEPT_ILLEGAL_INSTR;
                         endcase
                     end
 
                     3'b011: begin  // SLTU
-                        unique0 case (funct_7)
+                        case (funct_7)
                             7'b0000000: alu_op               = ALU_SLTU;
                             default:    controller_exception = EXCEPT_ILLEGAL_INSTR;
                         endcase
@@ -155,7 +155,7 @@ module controller
                 alu_a_sel         = ALU_A_RS1;
                 alu_b_sel         = ALU_B_IMM;
 
-                unique0 case (funct_3)
+                case (funct_3)
                     3'b000:  memory_op            = MEM_LB;   // LB
                     3'b100:  memory_op            = MEM_LBU;  // LBU
                     3'b001:  memory_op            = MEM_LH;   // LH
@@ -172,7 +172,7 @@ module controller
                 alu_a_sel         = ALU_A_RS1;
                 alu_b_sel         = ALU_B_IMM;
 
-                unique0 case (funct_3)
+                case (funct_3)
                     3'b000: alu_op = ALU_ADD;   // ADDI
                     3'b111: alu_op = ALU_AND;   // ANDI
                     3'b110: alu_op = ALU_OR;    // ORI
@@ -185,7 +185,7 @@ module controller
                             controller_exception = EXCEPT_ILLEGAL_INSTR;
                     end
                     3'b101: begin  // SRLI or SRAI
-                        unique0 case (funct_7)
+                        case (funct_7)
                             7'b0000000: alu_op               = ALU_SRL;  // SRLI
                             7'b0100000: alu_op               = ALU_SRA;  // SRAI
                             default:    controller_exception = EXCEPT_ILLEGAL_INSTR;
@@ -205,9 +205,9 @@ module controller
             OPCODE_I_ENV: begin
                 instruction_fmt = INSTR_FMT_I;
 
-                unique0 case (funct_3)
+                case (funct_3)
                     3'b000: begin
-                        unique0 case (instruction[31:20])
+                        case (instruction[31:20])
                             12'b000000000000: controller_exception = EXCEPT_ECALL;  // ECALL
                             12'b000000000001: controller_exception = EXCEPT_EBREAK; // EBREAK
                             12'b001100000010: mret_en              = 1'b1;          // MRET
@@ -225,7 +225,7 @@ module controller
                 alu_a_sel       = ALU_A_RS1;
                 alu_b_sel       = ALU_B_IMM;
 
-                unique0 case (funct_3)
+                case (funct_3)
                     3'b000:  memory_op            = MEM_SB;   // SB
                     3'b001:  memory_op            = MEM_SH;   // SH
                     3'b010:  memory_op            = MEM_SW;   // SW
@@ -240,7 +240,7 @@ module controller
                 alu_b_sel       = ALU_B_IMM;
                 pc_next_sel     = PC_NEXT_BRANCH;
 
-                unique0 case (funct_3)
+                case (funct_3)
                     3'b000:  branch_condition     = BRANCH_IF_EQ;   // BEQ
                     3'b001:  branch_condition     = BRANCH_IF_NE;   // BNE
                     3'b100:  branch_condition     = BRANCH_IF_LT;   // BLT

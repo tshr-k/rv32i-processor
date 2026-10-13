@@ -1,6 +1,6 @@
-module pipeline_top
-    import rv32i_pkg::*;
-#(
+import rv32i_pkg::*;
+
+module pipeline_top #(
     parameter int unsigned INSTR_MEM_DEPTH = 256,
     parameter int unsigned DATA_MEM_DEPTH  = 256
 ) (

@@ -1,9 +1,9 @@
-module pipeline_datapath
-    import rv32i_pkg::*;
-    import alu_pkg::*;
-    import controller_pkg::*;
-    import lsu_pkg::*;
-(
+import rv32i_pkg::*;
+import alu_pkg::*;
+import controller_pkg::*;
+import lsu_pkg::*;
+
+module pipeline_datapath (
     input  logic               clk,
     input  logic               reset,
 
@@ -78,7 +78,7 @@ module pipeline_datapath
     // Control signals for newly issued instruction
     control_t control_IF;
 
-    assign control_IF = control_t'{
+    assign control_IF = '{
         rf_write_en          : rf_write_en_IF,
         rf_write_data_sel    : rf_write_data_sel_IF,
         alu_op               : alu_op_IF,

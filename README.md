@@ -1,7 +1,5 @@
 # RV32I Processor
 
-## Project overview
-
 A RISC-V processor in SystemVerilog, supporting the entire RV32I instruction set and basic exception handling. Contains implementations for two microarchitectures: a single-cycle core, and a 5-stage pipelined core (IF, ID, EX, MEM, WB) with full hazard handling via forwarding, flushes and stalls.
 
 The design is verified by self-checking testbenches using Python and cocotb. There are unit tests that verify each module against a Python reference model and integration tests which run hex programs on each core and check the final architectural state.

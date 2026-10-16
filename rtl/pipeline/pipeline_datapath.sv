@@ -53,7 +53,7 @@ module pipeline_datapath (
 
     // LSU <-> data memory
     input  word_t              memory_read_data_raw_MEM,
-    output logic [31:2]        memory_word_addr_MEM,
+    output word_addr_t         memory_word_addr_MEM,
     output logic               memory_write_en_MEM,
     output word_t              memory_write_data_MEM,
     output logic [3:0]         memory_write_strobe_MEM,

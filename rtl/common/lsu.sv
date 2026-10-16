@@ -2,21 +2,21 @@ import rv32i_pkg::*;
 import lsu_pkg::*;
 
 module lsu (
-    input  word_t       addr,  // Byte address
-    input  memory_op_t  memory_op,
+    input  word_t      addr,  // Byte address
+    input  memory_op_t memory_op,
 
-    output logic [31:2] word_addr,
+    output word_addr_t word_addr,
 
-    input  word_t       read_data_raw,  // Raw word read from memory before any alignment or sign extension
-    output word_t       read_data_aligned,
+    input  word_t      read_data_raw,  // Raw word read from memory before any alignment or sign extension
+    output word_t      read_data_aligned,
 
-    input  word_t       write_data_in,  // Data to be written to memory before any alignment
-    output word_t       write_data_out,
-    output logic        write_en,
-    output logic [3:0]  write_strobe,  // One bit per byte of write_data_out
+    input  word_t      write_data_in,  // Data to be written to memory before any alignment
+    output word_t      write_data_out,
+    output logic       write_en,
+    output logic [3:0] write_strobe,  // One bit per byte of write_data_out
 
-    output logic        load_addr_misaligned,
-    output logic        store_addr_misaligned
+    output logic       load_addr_misaligned,
+    output logic       store_addr_misaligned
 );
     logic [1:0] byte_offset;
     byte_t      read_byte;

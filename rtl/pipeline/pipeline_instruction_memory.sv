@@ -5,17 +5,17 @@ module pipeline_instruction_memory #(
     parameter int unsigned LATENCY    = 4,  // Cycles from a request being accepted to its response
     parameter string       IMAGE_PATH = DEFAULT_INSTR_MEM_IMAGE_PATH
 ) (
-    input  logic        clk,
-    input  logic        reset,
+    input  logic       clk,
+    input  logic       reset,
 
     // Request
-    input  logic        request_valid,
-    output logic        request_ready,  // Only one request can be outstanding at a time
-    input  logic [31:2] request_word_addr,
+    input  logic       request_valid,
+    output logic       request_ready,  // Only one request can be outstanding at a time
+    input  word_addr_t request_word_addr,
 
     // Response
-    output logic        response_valid,  // Asserted for one cycle, LATENCY cycles after the request was accepted
-    output word_t       response_data
+    output logic       response_valid,  // Asserted for one cycle, LATENCY cycles after the request was accepted
+    output word_t      response_data
 );
     word_t instructions [DEPTH-1:0];
 
@@ -33,8 +33,8 @@ module pipeline_instruction_memory #(
 
     typedef logic [COUNTER_WIDTH-1:0] counter_t;
 
-    counter_t    cycles_remaining;  // Zero when idle
-    logic [31:2] pending_word_addr;
+    counter_t   cycles_remaining;  // Zero when idle
+    word_addr_t pending_word_addr;
 
     assign request_ready  = (cycles_remaining == '0);
     assign response_valid = (cycles_remaining == counter_t'(1));

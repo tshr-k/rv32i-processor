@@ -4,18 +4,18 @@ import rv32i_pkg::*;
 module pipeline_icache #(
     parameter int unsigned NUM_LINES = 16
 ) (
-    input  logic        clk,
-    input  logic        reset,  // Invalidates every line
+    input  logic       clk,
+    input  logic       reset,  // Invalidates every line
 
     // Asynchronous lookup
-    input  logic [31:2] lookup_word_addr,
-    output logic        hit,
-    output word_t       lookup_data,  // Only meaningful on a hit
+    input  word_addr_t lookup_word_addr,
+    output logic       hit,
+    output word_t      lookup_data,  // Only meaningful on a hit
 
     // Synchronous fill
-    input  logic        fill_en,
-    input  logic [31:2] fill_word_addr,  // This is separate from lookup_word_addr (even though both are never needed simultaneously) to avoid adding a MUX to the critical path
-    input  word_t       fill_data
+    input  logic       fill_en,
+    input  word_addr_t fill_word_addr,  // This is separate from lookup_word_addr (even though both are never needed simultaneously) to avoid adding a MUX to the critical path
+    input  word_t      fill_data
 );
     initial begin
         assert (NUM_LINES >= 2 && (NUM_LINES & (NUM_LINES - 1)) == 0)

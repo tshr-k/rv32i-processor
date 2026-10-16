@@ -11,30 +11,30 @@ module pipeline_top #(
     input logic clk,
     input logic reset
 );
-    word_t       memory_read_data_raw;
-    logic [31:2] memory_word_addr;
-    logic        memory_write_en;
-    word_t       memory_write_data;
-    logic [3:0]  memory_write_strobe;
+    word_t      memory_read_data_raw;
+    word_addr_t memory_word_addr;
+    logic       memory_write_en;
+    word_t      memory_write_data;
+    logic [3:0] memory_write_strobe;
 
-    word_t       instruction_addr;
-    word_t       instruction;
-    logic        instruction_valid;
+    word_t      instruction_addr;
+    word_t      instruction;
+    logic       instruction_valid;
 
     // Instruction cache controller <-> instruction cache
-    logic [31:2] icache_lookup_word_addr;
-    logic        icache_hit;
-    word_t       icache_lookup_data;
-    logic        icache_fill_en;
-    logic [31:2] icache_fill_word_addr;
-    word_t       icache_fill_data;
+    word_addr_t icache_lookup_word_addr;
+    logic       icache_hit;
+    word_t      icache_lookup_data;
+    logic       icache_fill_en;
+    word_addr_t icache_fill_word_addr;
+    word_t      icache_fill_data;
 
     // Instruction cache controller <-> instruction memory
-    logic        instr_mem_request_valid;
-    logic        instr_mem_request_ready;
-    logic [31:2] instr_mem_request_word_addr;
-    logic        instr_mem_response_valid;
-    word_t       instr_mem_response_data;
+    logic       instr_mem_request_valid;
+    logic       instr_mem_request_ready;
+    word_addr_t instr_mem_request_word_addr;
+    logic       instr_mem_response_valid;
+    word_t      instr_mem_response_data;
 
     pipeline_core u_core (
         .clk                 (clk),

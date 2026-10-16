@@ -3,28 +3,28 @@ import rv32i_pkg::*;
 // Serves instruction fetches from the cache, and refills the cache from memory on a miss
 // Memory responses only ever fill the cache, and the fetch is then retried as a lookup
 module pipeline_icache_controller (
-    input  logic        clk,
-    input  logic        reset,
+    input  logic       clk,
+    input  logic       reset,
 
     // Datapath interface
-    input  word_t       fetch_addr,  // Byte address
-    output word_t       instruction,
-    output logic        instruction_valid,  // Deasserted while a miss is being serviced
+    input  word_t      fetch_addr,  // Byte address
+    output word_t      instruction,
+    output logic       instruction_valid,  // Deasserted while a miss is being serviced
 
     // Cache interface
-    output logic [31:2] cache_lookup_word_addr,
-    input  logic        cache_hit,
-    input  word_t       cache_lookup_data,
-    output logic        cache_fill_en,
-    output logic [31:2] cache_fill_word_addr,
-    output word_t       cache_fill_data,
+    output word_addr_t cache_lookup_word_addr,
+    input  logic       cache_hit,
+    input  word_t      cache_lookup_data,
+    output logic       cache_fill_en,
+    output word_addr_t cache_fill_word_addr,
+    output word_t      cache_fill_data,
 
     // Memory interface
-    output logic        memory_request_valid,
-    input  logic        memory_request_ready,
-    output logic [31:2] memory_request_word_addr,
-    input  logic        memory_response_valid,
-    input  word_t       memory_response_data
+    output logic       memory_request_valid,
+    input  logic       memory_request_ready,
+    output word_addr_t memory_request_word_addr,
+    input  logic       memory_response_valid,
+    input  word_t      memory_response_data
 );
     typedef enum logic [1:0] {
         ICACHE_IDLE,          // Looking up fetch_addr in the cache
@@ -33,7 +33,7 @@ module pipeline_icache_controller (
     } icache_state_t;
 
     icache_state_t state;
-    logic [31:2]   miss_word_addr;  // If the requested word address missed, it is latched in case fetch_addr changes while filling
+    word_addr_t    miss_word_addr;  // If the requested word address missed, it is latched in case fetch_addr changes while filling
 
     assign cache_lookup_word_addr = fetch_addr[31:2];  // The current fetch address is always looked up in the cache, even if a previous fill is still in progress
 
@@ -48,7 +48,7 @@ module pipeline_icache_controller (
     assign cache_fill_data      = memory_response_data;
 
     icache_state_t state_next;
-    logic [31:2]   miss_word_addr_next;
+    word_addr_t    miss_word_addr_next;
 
     // Next state logic
     always_comb begin

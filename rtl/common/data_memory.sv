@@ -4,15 +4,15 @@ module data_memory #(
     parameter int unsigned DEPTH      = 256,
     parameter string       IMAGE_PATH = DEFAULT_DATA_MEM_IMAGE_PATH
 ) (
-    input  logic        clk,
+    input  logic       clk,
 
-    input  logic [31:2] word_addr,
+    input  word_addr_t word_addr,
 
-    input  logic        write_en,
-    input  word_t       write_data,
-    input  logic [3:0]  write_strobe,  // One bit per byte of write_data
+    input  logic       write_en,
+    input  word_t      write_data,
+    input  logic [3:0] write_strobe,  // One bit per byte of write_data
 
-    output word_t       read_data
+    output word_t      read_data
 );
     word_t data [DEPTH-1:0];
 

@@ -16,7 +16,7 @@ module single_cycle_datapath (
 
     input  memory_op_t         memory_op,
     input  word_t              memory_read_data_raw,
-    output logic [31:2]        memory_word_addr,
+    output word_addr_t         memory_word_addr,
     output logic               memory_write_en,
     output word_t              memory_write_data,
     output logic [3:0]         memory_write_strobe,

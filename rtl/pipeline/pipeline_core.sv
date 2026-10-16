@@ -4,20 +4,20 @@ import controller_pkg::*;
 import lsu_pkg::*;
 
 module pipeline_core (
-    input  logic        clk,
-    input  logic        reset,
+    input  logic       clk,
+    input  logic       reset,
 
     // Data memory interface
-    input  word_t       memory_read_data_raw,
-    output logic [31:2] memory_word_addr,
-    output logic        memory_write_en,
-    output word_t       memory_write_data,
-    output logic [3:0]  memory_write_strobe,
+    input  word_t      memory_read_data_raw,
+    output word_addr_t memory_word_addr,
+    output logic       memory_write_en,
+    output word_t      memory_write_data,
+    output logic [3:0] memory_write_strobe,
 
     // Instruction memory interface
-    output word_t       instruction_addr,
-    input  word_t       instruction,
-    input  logic        instruction_valid  // Deasserted while the fetch is stalled
+    output word_t      instruction_addr,
+    input  word_t      instruction,
+    input  logic       instruction_valid  // Deasserted while the fetch is stalled
 );
     // Exceptions are taken in MEM
     exception_t         controller_exception_MEM;

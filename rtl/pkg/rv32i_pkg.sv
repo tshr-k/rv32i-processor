@@ -27,4 +27,8 @@ package rv32i_pkg;
 
     localparam word_t INSTR_ADDR_RESET    = 32'h0000_0000;
     localparam word_t MTVEC_RESET         = 32'h0000_0004;
+
+    // Absolute, since Quartus doesn't find relative paths. Simulation overrides them (see the Makefile)
+    localparam string DEFAULT_INSTR_MEM_IMAGE_PATH = "//wsl.localhost/Ubuntu-24.04/home/t/hardware_projects/rv32i_processor/hex/instr/default.hex";
+    localparam string DEFAULT_DATA_MEM_IMAGE_PATH  = "//wsl.localhost/Ubuntu-24.04/home/t/hardware_projects/rv32i_processor/hex/data/default.hex";
 endpackage

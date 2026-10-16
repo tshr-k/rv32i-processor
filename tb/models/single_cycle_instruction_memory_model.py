@@ -7,16 +7,16 @@ from tb.bits_32 import Bits32
 
 
 @dataclass(frozen=True)
-class InstructionMemoryInputs:
+class SingleCycleInstructionMemoryInputs:
     addr: int
 
 
 @dataclass(frozen=True)
-class InstructionMemoryOutputs:
+class SingleCycleInstructionMemoryOutputs:
     instruction: int | None
 
 
-class InstructionMemoryModel:
+class SingleCycleInstructionMemoryModel:
     def __init__(self, depth: int = 256, image_path: str | Path | None = None):
         self.memory: list[int | None] = [None] * depth
         if image_path is not None:
@@ -33,7 +33,9 @@ class InstructionMemoryModel:
             self.memory[word_addr] = Bits32(int(contents, 16)).u
             word_addr += 1
 
-    def read(self, inputs: InstructionMemoryInputs) -> InstructionMemoryOutputs:
+    def read(
+        self, inputs: SingleCycleInstructionMemoryInputs
+    ) -> SingleCycleInstructionMemoryOutputs:
         # Upper address bits are ignored, so out-of-range addresses wrap around
         word_addr = (Bits32(inputs.addr).u >> 2) % len(self.memory)
-        return InstructionMemoryOutputs(instruction=self.memory[word_addr])
+        return SingleCycleInstructionMemoryOutputs(instruction=self.memory[word_addr])

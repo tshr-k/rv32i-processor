@@ -16,7 +16,8 @@ module pipeline_core (
 
     // Instruction memory interface
     output word_t       instruction_addr,
-    input  word_t       instruction
+    input  word_t       instruction,
+    input  logic        instruction_valid  // Deasserted while the fetch is stalled
 );
     // Exceptions are taken in MEM
     exception_t         controller_exception_MEM;
@@ -131,27 +132,28 @@ module pipeline_core (
     );
 
     pipeline_hazard_unit u_hazard_unit (
-        .rf_read_addr_1_EX (rf_read_addr_1_EX),
-        .rf_read_addr_2_EX (rf_read_addr_2_EX),
-        .rf_write_addr_MEM (rf_write_addr_MEM),
-        .rf_write_en_MEM   (rf_write_en_MEM),
-        .rf_write_addr_WB  (rf_write_addr_WB),
-        .rf_write_en_WB    (rf_write_en_WB),
-        .rf_read_addr_1_ID (rf_read_addr_1_ID),
-        .rf_read_addr_2_ID (rf_read_addr_2_ID),
-        .rf_write_addr_EX  (rf_write_addr_EX),
-        .is_load_EX        (is_load_EX),
-        .pc_redirect_en_EX (pc_redirect_en_EX),
-        .exception_MEM     (exception_MEM),
-        .mret_en_EX        (mret_en_EX_hazard),
-        .stall_IF          (stall_IF),
-        .stall_ID          (stall_ID),
-        .flush_ID          (flush_ID),
-        .flush_EX          (flush_EX),
-        .flush_MEM         (flush_MEM),
-        .flush_WB          (flush_WB),
-        .rs1_forward_sel_EX(rs1_forward_sel_EX),
-        .rs2_forward_sel_EX(rs2_forward_sel_EX)
+        .rf_read_addr_1_EX   (rf_read_addr_1_EX),
+        .rf_read_addr_2_EX   (rf_read_addr_2_EX),
+        .rf_write_addr_MEM   (rf_write_addr_MEM),
+        .rf_write_en_MEM     (rf_write_en_MEM),
+        .rf_write_addr_WB    (rf_write_addr_WB),
+        .rf_write_en_WB      (rf_write_en_WB),
+        .rf_read_addr_1_ID   (rf_read_addr_1_ID),
+        .rf_read_addr_2_ID   (rf_read_addr_2_ID),
+        .rf_write_addr_EX    (rf_write_addr_EX),
+        .is_load_EX          (is_load_EX),
+        .pc_redirect_en_EX   (pc_redirect_en_EX),
+        .instruction_valid_IF(instruction_valid),
+        .exception_MEM       (exception_MEM),
+        .mret_en_EX          (mret_en_EX_hazard),
+        .stall_IF            (stall_IF),
+        .stall_ID            (stall_ID),
+        .flush_ID            (flush_ID),
+        .flush_EX            (flush_EX),
+        .flush_MEM           (flush_MEM),
+        .flush_WB            (flush_WB),
+        .rs1_forward_sel_EX  (rs1_forward_sel_EX),
+        .rs2_forward_sel_EX  (rs2_forward_sel_EX)
     );
 
 

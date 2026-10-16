@@ -1,7 +1,8 @@
 import rv32i_pkg::*;
 
-module instruction_memory #(
-    parameter int unsigned DEPTH = 256
+module single_cycle_instruction_memory #(
+    parameter int unsigned DEPTH      = 256,
+    parameter string       IMAGE_PATH = DEFAULT_INSTR_MEM_IMAGE_PATH
 ) (
     input  word_t addr,  // Byte address
     output word_t instruction
@@ -12,7 +13,7 @@ module instruction_memory #(
         assert (DEPTH >= 2 && (DEPTH & (DEPTH - 1)) == 0)
             else $fatal(1, "DEPTH must be a power of 2 and at least 2.");
 
-        $readmemh("hex/instr/default.hex", instructions);
+        $readmemh(IMAGE_PATH, instructions);
     end
 
     localparam int unsigned INSTR_ADDR_WIDTH = $clog2(DEPTH);

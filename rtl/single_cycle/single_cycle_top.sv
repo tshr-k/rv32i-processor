@@ -1,8 +1,10 @@
 import rv32i_pkg::*;
 
 module single_cycle_top #(
-    parameter int unsigned INSTR_MEM_DEPTH = 256,
-    parameter int unsigned DATA_MEM_DEPTH  = 256
+    parameter int unsigned INSTR_MEM_DEPTH      = 256,
+    parameter string       INSTR_MEM_IMAGE_PATH = DEFAULT_INSTR_MEM_IMAGE_PATH,
+    parameter int unsigned DATA_MEM_DEPTH       = 256,
+    parameter string       DATA_MEM_IMAGE_PATH  = DEFAULT_DATA_MEM_IMAGE_PATH
 ) (
     input logic clk,
     input logic reset
@@ -28,15 +30,17 @@ module single_cycle_top #(
         .instruction         (instruction)
     );
 
-    instruction_memory #(
-        .DEPTH(INSTR_MEM_DEPTH)
+    single_cycle_instruction_memory #(
+        .DEPTH     (INSTR_MEM_DEPTH),
+        .IMAGE_PATH(INSTR_MEM_IMAGE_PATH)
     ) u_instruction_memory (
         .addr       (instruction_addr),
         .instruction(instruction)
     );
 
     data_memory #(
-        .DEPTH(DATA_MEM_DEPTH)
+        .DEPTH     (DATA_MEM_DEPTH),
+        .IMAGE_PATH(DATA_MEM_IMAGE_PATH)
     ) u_data_memory (
         .clk         (clk),
         .word_addr   (memory_word_addr),

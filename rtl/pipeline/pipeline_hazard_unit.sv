@@ -19,6 +19,9 @@ module pipeline_hazard_unit (
     // For control hazard detection
     input  logic           pc_redirect_en_EX,  // Asserted on a jump or taken-branch instruction
 
+    // For cache miss detection
+    input  logic           instruction_valid_IF,  // Deasserted while the instruction cache services a miss
+
     // For exception handling
     input  logic           exception_MEM,
     input  logic           mret_en_EX,
@@ -53,7 +56,7 @@ module pipeline_hazard_unit (
         flush_MEM = 1'b0;
         flush_WB  = 1'b0;
 
-        // From top to bottom priority: exceptions, MRET, control hazards, load-use hazards
+        // From top to bottom priority: exceptions, MRET, control hazards, load-use hazards, instruction fetch miss
         if (exception_MEM) begin
             flush_ID  = 1'b1;
             flush_EX  = 1'b1;
@@ -62,13 +65,16 @@ module pipeline_hazard_unit (
         end else if (mret_en_EX) begin
             flush_ID  = 1'b1;
             flush_EX  = 1'b1;
-        end else if (control_hazard) begin
+        end else if (control_hazard) begin  // A redirect must win over a cache miss, otherwise stall_IF would stop the PC from taking it
             flush_ID = 1'b1;
             flush_EX = 1'b1;
         end else if (load_use_hazard) begin
             stall_IF = 1'b1;
             stall_ID = 1'b1;
             flush_EX = 1'b1;
+        end else if (!instruction_valid_IF) begin
+            stall_IF = 1'b1;
+            flush_ID = 1'b1;
         end
     end
 

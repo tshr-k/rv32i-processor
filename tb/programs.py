@@ -5,8 +5,20 @@ import cocotb
 from cocotb.clock import Clock
 from cocotb.triggers import RisingEdge, Timer
 from common.data_memory_tb import clear_data_memory
-from common.instruction_memory_tb import load_instruction_memory
 from common.register_file_tb import clear_register_file, log_register_file
+
+
+def load_instruction_memory(u_instruction_memory, image_path: Path = Path("hex/instr/default.hex")):
+    """Works for both the single-cycle and pipeline instruction memories."""
+    current_index = 0
+    with open(image_path) as image:
+        for line in image:
+            line = line.split("//")[0].strip()
+            if not line:
+                continue
+
+            u_instruction_memory.instructions[current_index].value = int(line, 16)
+            current_index += 1
 
 
 @dataclass(frozen=True)
@@ -19,7 +31,7 @@ class Program:
     """
 
     image_path: Path
-    cycles: int  # Enough for the slowest microarchitecture to reach the final halt
+    cycles: int  # Enough for the slowest microarchitecture to reach the final halt, at one cycle per fetch
     registers: dict[int, int]  # Register index -> value
     memory: dict[int, int] = field(default_factory=dict)  # Word-aligned byte address -> word
     mepc: int = 0
@@ -186,8 +198,12 @@ async def reset(top) -> None:
     await Timer(1, unit="ns")
 
 
-async def run_program(top, program: Program) -> None:
-    """Runs the program on a *_top and checks the architectural state it leaves behind."""
+async def run_program(top, program: Program, cycles_per_fetch: int = 1) -> None:
+    """
+    Runs the program on a *_top and checks the architectural state it leaves behind.
+
+    cycles_per_fetch scales program.cycles, for cores whose fetches can take more than one cycle.
+    """
     cocotb.start_soon(Clock(top.clk, 10, unit="ns").start(start_high=False))
 
     register_file = top.u_core.u_datapath.u_register_file
@@ -197,7 +213,7 @@ async def run_program(top, program: Program) -> None:
 
     await reset(top)
 
-    for _ in range(program.cycles):
+    for _ in range(program.cycles * cycles_per_fetch):
         await RisingEdge(top.clk)
 
     log_register_file(register_file)

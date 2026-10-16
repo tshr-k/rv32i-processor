@@ -1,7 +1,8 @@
 import rv32i_pkg::*;
 
 module data_memory #(
-    parameter int unsigned DEPTH = 256
+    parameter int unsigned DEPTH      = 256,
+    parameter string       IMAGE_PATH = DEFAULT_DATA_MEM_IMAGE_PATH
 ) (
     input  logic        clk,
 
@@ -19,7 +20,7 @@ module data_memory #(
         assert (DEPTH >= 2 && (DEPTH & (DEPTH - 1)) == 0)
             else $fatal(1, "DEPTH must be a power of 2 and at least 2.");
 
-        $readmemh("hex/data/default.hex", data);
+        $readmemh(IMAGE_PATH, data);
     end
 
     localparam int unsigned WORD_ADDR_WIDTH = $clog2(DEPTH);

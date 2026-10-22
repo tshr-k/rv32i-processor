@@ -1,5 +1,6 @@
 # Usage:
 #   make ARCH=single_cycle|pipeline   integration test (tb/<ARCH>/<ARCH>_top_tb.py)
+#   make ARCH=single_cycle SPIKE=1    differential test against Spike (tb/<ARCH>/<ARCH>_spike_tb.py)
 #   make TEST=<module>                unit test for one module (tb/<dir>/<module>_tb.py)
 #   make ... PARAMS="P=V"             either test with top-level parameter overrides (space-separated)
 #   make clean                        remove all build output
@@ -39,11 +40,13 @@ ifdef TEST  # Unit test: <module> must match exactly one rtl/*/<module>.sv
 		COMPILE_ARGS += -GIMAGE_PATH='"$(INSTR_MEM_IMAGE_PATH)"'
 	endif
 else ifdef ARCH  # Architecture-specific integration test
-	SIM_BUILD = build/$(ARCH)$(subst $() ,,$(addprefix _,$(PARAMS)))
+	TOP = $(ARCH)_$(if $(SPIKE),spike,top)
+	SIM_BUILD = build/$(TOP)$(subst $() ,,$(addprefix _,$(PARAMS)))
 	VERILOG_SOURCES = $(PKG_SOURCES) $(wildcard $(CURDIR)/rtl/common/*.sv) $(wildcard $(CURDIR)/rtl/$(ARCH)/*.sv)
-	COCOTB_TOPLEVEL = $(ARCH)_top
-	COCOTB_TEST_MODULES = tb.$(ARCH).$(ARCH)_top_tb
+	COCOTB_TOPLEVEL = $(TOP)
+	COCOTB_TEST_MODULES = tb.$(ARCH).$(TOP)_tb
 	COMPILE_ARGS += -GINSTR_MEM_IMAGE_PATH='"$(INSTR_MEM_IMAGE_PATH)"' -GDATA_MEM_IMAGE_PATH='"$(DATA_MEM_IMAGE_PATH)"'
+	COMPILE_ARGS += $(if $(SPIKE),+define+SPIKE_MEMORY_MAP)  # Moves INSTR_ADDR_RESET to Spike's memory base
 else ifeq ($(MAKECMDGOALS),clean)
 	SIM_BUILD = build
 else

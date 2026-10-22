@@ -26,7 +26,12 @@ package rv32i_pkg;
         EXCEPT_NONE                  = 4'd7  // Value is irrelevant
     } exception_t;
 
+`ifdef SPIKE_MEMORY_MAP  // Defined by the Makefile for differential testing against Spike (SPIKE=1)
+    localparam word_t INSTR_ADDR_RESET    = 32'h8000_0000;  // Spike's default memory base address
+`else
     localparam word_t INSTR_ADDR_RESET    = 32'h0000_0000;
+`endif
+
     localparam word_t MTVEC_RESET         = 32'h0000_0004;
 
     // Absolute, since Quartus doesn't find relative paths. Simulation overrides them (see the Makefile)

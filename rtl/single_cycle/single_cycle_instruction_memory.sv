@@ -4,8 +4,8 @@ module single_cycle_instruction_memory #(
     parameter int unsigned DEPTH      = 256,
     parameter              IMAGE_PATH = DEFAULT_INSTR_MEM_IMAGE_PATH
 ) (
-    input  word_t addr,  // Byte address
-    output word_t instruction
+    input  word_addr_t word_addr,
+    output word_t      instruction
 );
     word_t instructions [DEPTH-1:0];
 
@@ -18,7 +18,7 @@ module single_cycle_instruction_memory #(
 
     localparam int unsigned INSTR_ADDR_WIDTH = $clog2(DEPTH);
 
-    // Asynchronous read, after extracting the word address from the byte address
+    // Asynchronous read
     // Upper address bits are ignored, so out-of-range addresses wrap around
-    assign instruction = instructions[addr[(INSTR_ADDR_WIDTH+2) - 1 : 2]];
+    assign instruction = instructions[word_addr[(INSTR_ADDR_WIDTH+2) - 1 : 2]];
 endmodule

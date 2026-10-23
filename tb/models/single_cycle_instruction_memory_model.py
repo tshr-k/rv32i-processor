@@ -8,7 +8,7 @@ from tb.bits_32 import Bits32
 
 @dataclass(frozen=True)
 class SingleCycleInstructionMemoryInputs:
-    addr: int
+    word_addr: int
 
 
 @dataclass(frozen=True)
@@ -33,9 +33,15 @@ class SingleCycleInstructionMemoryModel:
             self.memory[word_addr] = Bits32(int(contents, 16)).u
             word_addr += 1
 
+    def _wrap_address(self, word_addr: int) -> int:
+        if not 0 <= word_addr < (1 << 30):
+            raise ValueError("Word address must be a 30-bit value.")
+        # Upper address bits are ignored, so out-of-range addresses wrap around
+        return word_addr % len(self.memory)
+
     def read(
         self, inputs: SingleCycleInstructionMemoryInputs
     ) -> SingleCycleInstructionMemoryOutputs:
-        # Upper address bits are ignored, so out-of-range addresses wrap around
-        word_addr = (Bits32(inputs.addr).u >> 2) % len(self.memory)
-        return SingleCycleInstructionMemoryOutputs(instruction=self.memory[word_addr])
+        return SingleCycleInstructionMemoryOutputs(
+            instruction=self.memory[self._wrap_address(inputs.word_addr)]
+        )

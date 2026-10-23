@@ -34,7 +34,7 @@ module single_cycle_top #(
         .DEPTH     (INSTR_MEM_DEPTH),
         .IMAGE_PATH(INSTR_MEM_IMAGE_PATH)
     ) u_instruction_memory (
-        .addr       (instruction_addr),
+        .word_addr  (instruction_addr[31:2]),
         .instruction(instruction)
     );
 

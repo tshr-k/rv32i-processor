@@ -13,12 +13,12 @@ async def test_single_cycle_instruction_memory_reads(dut):
     image_path = Path("hex/instr/default.hex")
     model = SingleCycleInstructionMemoryModel(image_path=image_path)
 
-    depth_bytes = len(model.memory) * 4
-    wrapped_addrs = [depth_bytes, depth_bytes + 4, 2 * depth_bytes - 4, 0xFFFFFFFC]
-    for addr in [*range(0, depth_bytes, 4), *wrapped_addrs]:
-        inputs = SingleCycleInstructionMemoryInputs(addr=addr)
+    depth = len(model.memory)
+    wrapped_word_addrs = [depth, depth + 1, 2 * depth - 1, (1 << 30) - 1]
+    for word_addr in [*range(depth), *wrapped_word_addrs]:
+        inputs = SingleCycleInstructionMemoryInputs(word_addr=word_addr)
 
-        dut.addr.value = inputs.addr
+        dut.word_addr.value = inputs.word_addr
         await Timer(1, unit="ns")
 
         expected = model.read(inputs)

@@ -7,8 +7,8 @@ import rv32i_pkg::*;
 // program, so they hold the same contents until the first store.
 module single_cycle_spike #(
     parameter int unsigned MEM_DEPTH            = 256,  // Words, so 1 KiB
-    parameter string       INSTR_MEM_IMAGE_PATH = DEFAULT_INSTR_MEM_IMAGE_PATH,
-    parameter string       DATA_MEM_IMAGE_PATH  = DEFAULT_DATA_MEM_IMAGE_PATH
+    parameter              INSTR_MEM_IMAGE_PATH = DEFAULT_INSTR_MEM_IMAGE_PATH,
+    parameter              DATA_MEM_IMAGE_PATH  = DEFAULT_DATA_MEM_IMAGE_PATH
 ) (
     input logic clk,
     input logic reset

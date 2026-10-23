@@ -2,7 +2,7 @@ import rv32i_pkg::*;
 
 module data_memory #(
     parameter int unsigned DEPTH      = 256,
-    parameter string       IMAGE_PATH = DEFAULT_DATA_MEM_IMAGE_PATH
+    parameter              IMAGE_PATH = DEFAULT_DATA_MEM_IMAGE_PATH
 ) (
     input  logic       clk,
 

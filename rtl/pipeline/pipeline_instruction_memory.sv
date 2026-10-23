@@ -3,7 +3,7 @@ import rv32i_pkg::*;
 module pipeline_instruction_memory #(
     parameter int unsigned DEPTH      = 256,
     parameter int unsigned LATENCY    = 4,  // Cycles from a request being accepted to its response
-    parameter string       IMAGE_PATH = DEFAULT_INSTR_MEM_IMAGE_PATH
+    parameter              IMAGE_PATH = DEFAULT_INSTR_MEM_IMAGE_PATH
 ) (
     input  logic       clk,
     input  logic       reset,

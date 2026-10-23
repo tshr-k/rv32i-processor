@@ -2,7 +2,7 @@ import rv32i_pkg::*;
 
 module single_cycle_instruction_memory #(
     parameter int unsigned DEPTH      = 256,
-    parameter string       IMAGE_PATH = DEFAULT_INSTR_MEM_IMAGE_PATH
+    parameter              IMAGE_PATH = DEFAULT_INSTR_MEM_IMAGE_PATH
 ) (
     input  word_t addr,  // Byte address
     output word_t instruction

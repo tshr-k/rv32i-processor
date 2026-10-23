@@ -3,10 +3,10 @@ import rv32i_pkg::*;
 module pipeline_top #(
     parameter int unsigned INSTR_MEM_DEPTH      = 256,
     parameter int unsigned INSTR_MEM_LATENCY    = 4,  // Cycles from a request being accepted to its response
-    parameter string       INSTR_MEM_IMAGE_PATH = DEFAULT_INSTR_MEM_IMAGE_PATH,
+    parameter              INSTR_MEM_IMAGE_PATH = DEFAULT_INSTR_MEM_IMAGE_PATH,
     parameter int unsigned ICACHE_NUM_LINES     = 16,
     parameter int unsigned DATA_MEM_DEPTH       = 256,
-    parameter string       DATA_MEM_IMAGE_PATH  = DEFAULT_DATA_MEM_IMAGE_PATH
+    parameter              DATA_MEM_IMAGE_PATH  = DEFAULT_DATA_MEM_IMAGE_PATH
 ) (
     input logic clk,
     input logic reset

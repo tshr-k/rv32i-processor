@@ -8,19 +8,22 @@ module pipeline_datapath (
     input  logic               reset,
 
     output word_t              instruction_addr_IF,
-    input  word_t              instruction_IF,  // Only for obtaining the immediate and/or register addresses
+    input  word_t              instruction_IF,
 
-    // Control signals for newly issued instruction
-    input  logic               rf_write_en_IF,
-    input  rf_write_data_sel_t rf_write_data_sel_IF,
-    input  alu_op_t            alu_op_IF,
-    input  alu_a_sel_t         alu_a_sel_IF,
-    input  alu_b_sel_t         alu_b_sel_IF,
-    input  memory_op_t         memory_op_IF,
-    input  instruction_fmt_t   instruction_fmt_IF,
-    input  branch_condition_t  branch_condition_IF,
-    input  pc_next_sel_t       pc_next_sel_IF,
-    input  exception_t         controller_exception_IF,
+    // Instruction being decoded, to the controller
+    output word_t              instruction_ID,
+
+    // Control signals decoded from instruction_ID by the controller
+    input  logic               rf_write_en_ID,
+    input  rf_write_data_sel_t rf_write_data_sel_ID,
+    input  alu_op_t            alu_op_ID,
+    input  alu_a_sel_t         alu_a_sel_ID,
+    input  alu_b_sel_t         alu_b_sel_ID,
+    input  memory_op_t         memory_op_ID,
+    input  instruction_fmt_t   instruction_fmt_ID,
+    input  branch_condition_t  branch_condition_ID,
+    input  pc_next_sel_t       pc_next_sel_ID,
+    input  exception_t         controller_exception_ID,
 
     // Stall, flush and forwarding control signals for handling hazards
     input  logic               stall_IF,
@@ -63,34 +66,17 @@ module pipeline_datapath (
     input  word_t              pc_next_override_IF,
 
     // Exceptions corresponding to the instruction in the MEM stage, from where all exceptions are taken
-    output exception_t         controller_exception_MEM,  // controller_exception_IF pipelined down to MEM
+    output exception_t         controller_exception_MEM,  // controller_exception_ID pipelined down to MEM
     output exception_t         datapath_exception_MEM,
     output word_t              instruction_addr_MEM,  // Trap PC
 
     // To tell the exception unit to return from the exception handler by overriding the PC
-    input  logic               mret_en_IF,
+    input  logic               mret_en_ID,
     output logic               mret_en_EX  // We must wait until the previous instruction's exceptions and branch decisions have been taken in MEM
 );
     // =========================================================================
     // IF: Instruction fetch
     // =========================================================================
-
-    // Control signals for newly issued instruction
-    control_t control_IF;
-
-    assign control_IF = '{
-        rf_write_en          : rf_write_en_IF,
-        rf_write_data_sel    : rf_write_data_sel_IF,
-        alu_op               : alu_op_IF,
-        alu_a_sel            : alu_a_sel_IF,
-        alu_b_sel            : alu_b_sel_IF,
-        memory_op            : memory_op_IF,
-        instruction_fmt      : instruction_fmt_IF,
-        branch_condition     : branch_condition_IF,
-        pc_next_sel          : pc_next_sel_IF,
-        controller_exception : controller_exception_IF,
-        mret_en              : mret_en_IF
-    };
 
     // Forward declaration
     word_t pc_redirect_target_EX;
@@ -119,22 +105,35 @@ module pipeline_datapath (
     // =========================================================================
 
     // IF->ID pipeline register
-    control_t control_ID;
-    word_t    instruction_ID;  // For decoding the immediate and register addresses
-
     word_t    pc_plus_4_ID;  // For eventually writing PC+4 to the register file in WB
     word_t    instruction_addr_ID;  // For computing the branch/jump target address in EX
 
     always_ff @(posedge clk) begin
         if (reset || flush_ID) begin
-            control_ID <= CONTROL_NOP;
+            instruction_ID <= INSTR_NOP;  // Decoded by the controller as a NOP
         end else if (!stall_ID) begin
-            control_ID          <= control_IF;
             instruction_ID      <= instruction_IF;
             pc_plus_4_ID        <= pc_plus_4_IF;
             instruction_addr_ID <= instruction_addr_IF;
         end
     end
+
+    // Control signals for the instruction being decoded
+    control_t control_ID;
+
+    assign control_ID = '{
+        rf_write_en          : rf_write_en_ID,
+        rf_write_data_sel    : rf_write_data_sel_ID,
+        alu_op               : alu_op_ID,
+        alu_a_sel            : alu_a_sel_ID,
+        alu_b_sel            : alu_b_sel_ID,
+        memory_op            : memory_op_ID,
+        instruction_fmt      : instruction_fmt_ID,
+        branch_condition     : branch_condition_ID,
+        pc_next_sel          : pc_next_sel_ID,
+        controller_exception : controller_exception_ID,
+        mret_en              : mret_en_ID
+    };
 
     // Forward declarations
     word_t          rf_write_data_WB;

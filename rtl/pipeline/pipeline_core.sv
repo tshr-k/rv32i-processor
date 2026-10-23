@@ -57,23 +57,25 @@ module pipeline_core (
     logic               pc_redirect_en_EX;  // Asserted on a jump or taken-branch instruction
 
 
-    // Control signals straight from the controller, for the instruction being fetched
-    logic               rf_write_en_IF;
-    rf_write_data_sel_t rf_write_data_sel_IF;
+    // Control signals straight from the controller, for the instruction being decoded
+    word_t              instruction_ID;
 
-    alu_op_t            alu_op_IF;
-    alu_a_sel_t         alu_a_sel_IF;
-    alu_b_sel_t         alu_b_sel_IF;
+    logic               rf_write_en_ID;
+    rf_write_data_sel_t rf_write_data_sel_ID;
 
-    memory_op_t         memory_op_IF;
+    alu_op_t            alu_op_ID;
+    alu_a_sel_t         alu_a_sel_ID;
+    alu_b_sel_t         alu_b_sel_ID;
 
-    instruction_fmt_t   instruction_fmt_IF;
-    branch_condition_t  branch_condition_IF;
-    pc_next_sel_t       pc_next_sel_IF;
+    memory_op_t         memory_op_ID;
 
-    logic               mret_en_IF;
+    instruction_fmt_t   instruction_fmt_ID;
+    branch_condition_t  branch_condition_ID;
+    pc_next_sel_t       pc_next_sel_ID;
+
+    logic               mret_en_ID;
     logic               mret_en_EX;
-    exception_t         controller_exception_IF;
+    exception_t         controller_exception_ID;
 
     // Straight from the datapath
     logic               memory_write_en_raw;
@@ -84,18 +86,18 @@ module pipeline_core (
     assign memory_write_en = memory_write_en_eff;
 
     controller u_controller (
-        .instruction         (instruction),
-        .rf_write_en         (rf_write_en_IF),
-        .rf_write_data_sel   (rf_write_data_sel_IF),
-        .alu_op              (alu_op_IF),
-        .alu_a_sel           (alu_a_sel_IF),
-        .alu_b_sel           (alu_b_sel_IF),
-        .memory_op           (memory_op_IF),
-        .instruction_fmt     (instruction_fmt_IF),
-        .branch_condition    (branch_condition_IF),
-        .pc_next_sel         (pc_next_sel_IF),
-        .mret_en             (mret_en_IF),
-        .controller_exception(controller_exception_IF)
+        .instruction         (instruction_ID),
+        .rf_write_en         (rf_write_en_ID),
+        .rf_write_data_sel   (rf_write_data_sel_ID),
+        .alu_op              (alu_op_ID),
+        .alu_a_sel           (alu_a_sel_ID),
+        .alu_b_sel           (alu_b_sel_ID),
+        .memory_op           (memory_op_ID),
+        .instruction_fmt     (instruction_fmt_ID),
+        .branch_condition    (branch_condition_ID),
+        .pc_next_sel         (pc_next_sel_ID),
+        .mret_en             (mret_en_ID),
+        .controller_exception(controller_exception_ID)
     );
 
     pipeline_exception_unit u_exception_unit (
@@ -162,16 +164,17 @@ module pipeline_core (
         .reset                   (reset),
         .instruction_addr_IF     (instruction_addr),
         .instruction_IF          (instruction),
-        .rf_write_en_IF          (rf_write_en_IF),
-        .rf_write_data_sel_IF    (rf_write_data_sel_IF),
-        .alu_op_IF               (alu_op_IF),
-        .alu_a_sel_IF            (alu_a_sel_IF),
-        .alu_b_sel_IF            (alu_b_sel_IF),
-        .memory_op_IF            (memory_op_IF),
-        .instruction_fmt_IF      (instruction_fmt_IF),
-        .branch_condition_IF     (branch_condition_IF),
-        .pc_next_sel_IF          (pc_next_sel_IF),
-        .controller_exception_IF (controller_exception_IF),
+        .instruction_ID          (instruction_ID),
+        .rf_write_en_ID          (rf_write_en_ID),
+        .rf_write_data_sel_ID    (rf_write_data_sel_ID),
+        .alu_op_ID               (alu_op_ID),
+        .alu_a_sel_ID            (alu_a_sel_ID),
+        .alu_b_sel_ID            (alu_b_sel_ID),
+        .memory_op_ID            (memory_op_ID),
+        .instruction_fmt_ID      (instruction_fmt_ID),
+        .branch_condition_ID     (branch_condition_ID),
+        .pc_next_sel_ID          (pc_next_sel_ID),
+        .controller_exception_ID (controller_exception_ID),
         .stall_IF                (stall_IF),
         .stall_ID                (stall_ID),
         .flush_ID                (flush_ID),
@@ -201,7 +204,7 @@ module pipeline_core (
         .controller_exception_MEM(controller_exception_MEM),
         .datapath_exception_MEM  (datapath_exception_MEM),
         .instruction_addr_MEM    (instruction_addr_MEM),
-        .mret_en_IF              (mret_en_IF),
+        .mret_en_ID              (mret_en_ID),
         .mret_en_EX              (mret_en_EX)
     );
 endmodule

@@ -34,6 +34,9 @@ package rv32i_pkg;
 
     localparam word_t MTVEC_RESET         = 32'h0000_0004;
 
+    // Using register x0 avoids spurious load-use stalls
+    localparam word_t INSTR_NOP           = 32'h0000_0013;  // addi x0, x0, 0
+
     // Absolute, since Quartus doesn't find relative paths. Simulation overrides them (see the Makefile)
     // Untyped rather than string: Quartus rejects string parameters as $readmemh file names
     localparam DEFAULT_INSTR_MEM_IMAGE_PATH = "//wsl.localhost/Ubuntu-24.04/home/t/hardware_projects/rv32i_processor/hex/instr/default.hex";

@@ -8,8 +8,10 @@ module pipeline_top #(
     parameter int unsigned DATA_MEM_DEPTH       = 256,
     parameter              DATA_MEM_IMAGE_PATH  = DEFAULT_DATA_MEM_IMAGE_PATH
 ) (
-    input logic clk,
-    input logic reset
+    input  logic clk,
+    input  logic reset,
+
+    output word_t debug_instruction_addr  // Prevent the synthesiser from optimising internal logic away
 );
     word_t      memory_read_data_raw;
     word_addr_t memory_word_addr;
@@ -18,6 +20,8 @@ module pipeline_top #(
     logic [3:0] memory_write_strobe;
 
     word_t      instruction_addr;
+    assign debug_instruction_addr = instruction_addr;
+
     word_t      instruction;
     logic       instruction_valid;
 

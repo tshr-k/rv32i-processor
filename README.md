@@ -89,6 +89,14 @@ Spike's `mtvec` resets to 0, where it has no memory. A trap on Spike shows up as
 retired instructions, which fails the test. For the same reason, data lives in memory through a base
 register (`x31 = 0x80000200`) instead of at addresses relative to `x0`.
 
+## Timing
+
+Quartus Timing Analyzer shows that the worst setup slack is currently on the data hazard forwarding paths:
+1. 3.949 ns: `rf_write_addr_MEM` -> `pipeline_hazard_unit` -> forwarding-from-MEM mux in EX -> `comparator` -> branch decision -> `pc_next_IF`
+2. 4.284 ns: `control_WB.rf_write_en` -> `pipeline_hazard_unit` -> forwarding-from-WB mux in EX -> `comparator` -> branch decision -> `pc_next_IF`
+3. 4.388 ns: `control_MEM.rf_write_en` -> `pipeline_hazard_unit` -> forwarding-from-MEM mux in EX -> `comparator` -> branch decision -> `pc_next_IF`
+
+
 ## Repository history note
 
 The original Git metadata for this project was accidentally lost during development

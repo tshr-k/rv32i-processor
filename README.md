@@ -91,10 +91,10 @@ register (`x31 = 0x80000200`) instead of at addresses relative to `x0`.
 
 ## Timing
 
-Quartus Timing Analyzer shows that the worst setup slack is currently on the data hazard forwarding paths:
-1. 3.949 ns: `rf_write_addr_MEM` -> `pipeline_hazard_unit` -> forwarding-from-MEM mux in EX -> `comparator` -> branch decision -> `pc_next_IF`
-2. 4.284 ns: `control_WB.rf_write_en` -> `pipeline_hazard_unit` -> forwarding-from-WB mux in EX -> `comparator` -> branch decision -> `pc_next_IF`
-3. 4.388 ns: `control_MEM.rf_write_en` -> `pipeline_hazard_unit` -> forwarding-from-MEM mux in EX -> `comparator` -> branch decision -> `pc_next_IF`
+Quartus Timing Analyzer shows that the worst setup slack is currently on the data hazard forwarding path and the data memory read path:
+1. 4.833 ns: `rs1_forward_sel_EX` -> `pc_next_IF`
+2. 4.918 ns: `control_MEM.rf_write_data_sel` -> `pc_next_IF`
+3. 4.994 ns: `alu_result_MEM` -> `load_data_MEM` (probably because data memory isn't being inferred as BRAM yet)
 
 
 ## Repository history note

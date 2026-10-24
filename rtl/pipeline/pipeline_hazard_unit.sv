@@ -2,18 +2,13 @@ import rv32i_pkg::*;
 import controller_pkg::*;
 
 module pipeline_hazard_unit (
-    // For data hazard detection
-    input  register_addr_t rf_read_addr_1_EX,
-    input  register_addr_t rf_read_addr_2_EX,
-    input  register_addr_t rf_write_addr_MEM,
-    input  logic           rf_write_en_MEM,
-    input  register_addr_t rf_write_addr_WB,
-    input  logic           rf_write_en_WB,
-
-    // For load-use hazard detection
+    // For data hazard and load-use hazard detection
     input  register_addr_t rf_read_addr_1_ID,
     input  register_addr_t rf_read_addr_2_ID,
     input  register_addr_t rf_write_addr_EX,
+    input  logic           rf_write_en_EX,
+    input  register_addr_t rf_write_addr_MEM,
+    input  logic           rf_write_en_MEM,
     input  logic           is_load_EX,
 
     // For control hazard detection
@@ -35,8 +30,9 @@ module pipeline_hazard_unit (
     output logic           flush_MEM,
     output logic           flush_WB,
 
-    output rs1_forward_sel_t rs1_forward_sel_EX,
-    output rs2_forward_sel_t rs2_forward_sel_EX
+    // Registered into EX by the datapath, to keep the address comparisons off the EX critical path
+    output rs1_forward_sel_t rs1_forward_sel_ID,
+    output rs2_forward_sel_t rs2_forward_sel_ID
 );
     logic control_hazard;
     logic load_use_hazard;
@@ -78,21 +74,23 @@ module pipeline_hazard_unit (
         end
     end
 
-    // Forwarding
+    // Forwarding, decided one cycle early for the instruction in ID
+    // Since EX never stalls, the instructions now in EX and MEM will be in MEM and WB when this instruction is in EX
     always_comb begin
-        // The rf_write_data from the newer instruction in MEM has priority over the older one in WB
-        // No forwarding happens if the MEM or WB instruction was trying to write to register x0
-        rs1_forward_sel_EX = RS1_FWD_NONE;
-        rs2_forward_sel_EX = RS2_FWD_NONE;
+        // The rf_write_data from the newer instruction (now in EX) has priority over the older one (now in MEM)
+        // No forwarding happens if the EX or MEM instruction was trying to write to register x0
+        // Instructions now in WB are handled by the register file's write-through instead
+        rs1_forward_sel_ID = RS1_FWD_NONE;
+        rs2_forward_sel_ID = RS2_FWD_NONE;
 
-        if (rf_write_en_MEM && (rf_read_addr_1_EX == rf_write_addr_MEM) && (rf_write_addr_MEM != '0))
-            rs1_forward_sel_EX = RS1_FWD_MEM;
-        else if (rf_write_en_WB && (rf_read_addr_1_EX == rf_write_addr_WB) && (rf_write_addr_WB != '0))
-            rs1_forward_sel_EX = RS1_FWD_WB;
+        if (rf_write_en_EX && (rf_read_addr_1_ID == rf_write_addr_EX) && (rf_write_addr_EX != '0))
+            rs1_forward_sel_ID = RS1_FWD_MEM;
+        else if (rf_write_en_MEM && (rf_read_addr_1_ID == rf_write_addr_MEM) && (rf_write_addr_MEM != '0))
+            rs1_forward_sel_ID = RS1_FWD_WB;
 
-        if (rf_write_en_MEM && (rf_read_addr_2_EX == rf_write_addr_MEM) && (rf_write_addr_MEM != '0))
-            rs2_forward_sel_EX = RS2_FWD_MEM;
-        else if (rf_write_en_WB && (rf_read_addr_2_EX == rf_write_addr_WB) && (rf_write_addr_WB != '0))
-            rs2_forward_sel_EX = RS2_FWD_WB;
+        if (rf_write_en_EX && (rf_read_addr_2_ID == rf_write_addr_EX) && (rf_write_addr_EX != '0))
+            rs2_forward_sel_ID = RS2_FWD_MEM;
+        else if (rf_write_en_MEM && (rf_read_addr_2_ID == rf_write_addr_MEM) && (rf_write_addr_MEM != '0))
+            rs2_forward_sel_ID = RS2_FWD_WB;
     end
 endmodule

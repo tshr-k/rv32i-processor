@@ -34,21 +34,16 @@ module pipeline_datapath (
     input  logic               flush_MEM,
     input  logic               flush_WB,
 
-    input  rs1_forward_sel_t   rs1_forward_sel_EX,
-    input  rs2_forward_sel_t   rs2_forward_sel_EX,
+    input  rs1_forward_sel_t   rs1_forward_sel_ID,
+    input  rs2_forward_sel_t   rs2_forward_sel_ID,
 
-    // For data hazard detection
-    output register_addr_t     rf_read_addr_1_EX,
-    output register_addr_t     rf_read_addr_2_EX,
-    output register_addr_t     rf_write_addr_MEM,
-    output logic               rf_write_en_MEM,
-    output register_addr_t     rf_write_addr_WB,
-    output logic               rf_write_en_WB,
-
-    // For load-use hazard detection
+    // For data hazard and load-use hazard detection
     output register_addr_t     rf_read_addr_1_ID,
     output register_addr_t     rf_read_addr_2_ID,
     output register_addr_t     rf_write_addr_EX,
+    output logic               rf_write_en_EX,
+    output register_addr_t     rf_write_addr_MEM,
+    output logic               rf_write_en_MEM,
     output logic               is_load_EX,
 
     // For control hazard detection
@@ -137,6 +132,8 @@ module pipeline_datapath (
 
     // Forward declarations
     word_t          rf_write_data_WB;
+    register_addr_t rf_write_addr_WB;
+    logic           rf_write_en_WB;
 
     // Register file
     word_t          rf_read_data_1_ID;
@@ -185,9 +182,15 @@ module pipeline_datapath (
 
     word_t          pc_plus_4_EX;  // For eventually writing to the register file in WB
 
+    // Forwarding selects decided by the hazard unit while this instruction was in ID
+    rs1_forward_sel_t rs1_forward_sel_EX;
+    rs2_forward_sel_t rs2_forward_sel_EX;
+
     always_ff @(posedge clk) begin
         if (reset || flush_EX) begin
             control_EX          <= CONTROL_NOP;
+            rs1_forward_sel_EX  <= RS1_FWD_NONE;
+            rs2_forward_sel_EX  <= RS2_FWD_NONE;
         end else begin
             control_EX          <= control_ID;
             rf_read_data_1_EX   <= rf_read_data_1_ID;
@@ -196,10 +199,8 @@ module pipeline_datapath (
             immediate_EX        <= immediate_ID;
             pc_plus_4_EX        <= pc_plus_4_ID;
             rf_write_addr_EX    <= rf_write_addr_ID;
-
-            // For determining if forwarding from MEM or WB is required
-            rf_read_addr_1_EX   <= rf_read_addr_1_ID;
-            rf_read_addr_2_EX   <= rf_read_addr_2_ID;
+            rs1_forward_sel_EX  <= rs1_forward_sel_ID;
+            rs2_forward_sel_EX  <= rs2_forward_sel_ID;
         end
     end
 
@@ -299,7 +300,9 @@ module pipeline_datapath (
         endcase
     end
 
-    // For detecting load-use hazards
+    // For detecting data hazards and load-use hazards
+    assign rf_write_en_EX = control_EX.rf_write_en;
+
     assign is_load_EX = (control_EX.rf_write_data_sel == RF_WRITE_MEM_RES)
                      && control_EX.rf_write_en;
 

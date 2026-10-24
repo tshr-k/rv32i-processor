@@ -42,17 +42,14 @@ module pipeline_core (
     logic               mret_en_EX_hazard;  // mret_en_EX, passed on by the exception unit
 
     // Hazard detection
-    rs1_forward_sel_t   rs1_forward_sel_EX;
-    rs2_forward_sel_t   rs2_forward_sel_EX;
-    register_addr_t     rf_read_addr_1_EX;
-    register_addr_t     rf_read_addr_2_EX;
-    register_addr_t     rf_write_addr_MEM;
-    logic               rf_write_en_MEM;
-    register_addr_t     rf_write_addr_WB;
-    logic               rf_write_en_WB;
+    rs1_forward_sel_t   rs1_forward_sel_ID;
+    rs2_forward_sel_t   rs2_forward_sel_ID;
     register_addr_t     rf_read_addr_1_ID;
     register_addr_t     rf_read_addr_2_ID;
     register_addr_t     rf_write_addr_EX;
+    logic               rf_write_en_EX;
+    register_addr_t     rf_write_addr_MEM;
+    logic               rf_write_en_MEM;
     logic               is_load_EX;
     logic               pc_redirect_en_EX;  // Asserted on a jump or taken-branch instruction
 
@@ -134,15 +131,12 @@ module pipeline_core (
     );
 
     pipeline_hazard_unit u_hazard_unit (
-        .rf_read_addr_1_EX   (rf_read_addr_1_EX),
-        .rf_read_addr_2_EX   (rf_read_addr_2_EX),
-        .rf_write_addr_MEM   (rf_write_addr_MEM),
-        .rf_write_en_MEM     (rf_write_en_MEM),
-        .rf_write_addr_WB    (rf_write_addr_WB),
-        .rf_write_en_WB      (rf_write_en_WB),
         .rf_read_addr_1_ID   (rf_read_addr_1_ID),
         .rf_read_addr_2_ID   (rf_read_addr_2_ID),
         .rf_write_addr_EX    (rf_write_addr_EX),
+        .rf_write_en_EX      (rf_write_en_EX),
+        .rf_write_addr_MEM   (rf_write_addr_MEM),
+        .rf_write_en_MEM     (rf_write_en_MEM),
         .is_load_EX          (is_load_EX),
         .pc_redirect_en_EX   (pc_redirect_en_EX),
         .instruction_valid_IF(instruction_valid),
@@ -154,8 +148,8 @@ module pipeline_core (
         .flush_EX            (flush_EX),
         .flush_MEM           (flush_MEM),
         .flush_WB            (flush_WB),
-        .rs1_forward_sel_EX  (rs1_forward_sel_EX),
-        .rs2_forward_sel_EX  (rs2_forward_sel_EX)
+        .rs1_forward_sel_ID  (rs1_forward_sel_ID),
+        .rs2_forward_sel_ID  (rs2_forward_sel_ID)
     );
 
 
@@ -181,17 +175,14 @@ module pipeline_core (
         .flush_EX                (flush_EX),
         .flush_MEM               (flush_MEM),
         .flush_WB                (flush_WB),
-        .rs1_forward_sel_EX      (rs1_forward_sel_EX),
-        .rs2_forward_sel_EX      (rs2_forward_sel_EX),
-        .rf_read_addr_1_EX       (rf_read_addr_1_EX),
-        .rf_read_addr_2_EX       (rf_read_addr_2_EX),
-        .rf_write_addr_MEM       (rf_write_addr_MEM),
-        .rf_write_en_MEM         (rf_write_en_MEM),
-        .rf_write_addr_WB        (rf_write_addr_WB),
-        .rf_write_en_WB          (rf_write_en_WB),
+        .rs1_forward_sel_ID      (rs1_forward_sel_ID),
+        .rs2_forward_sel_ID      (rs2_forward_sel_ID),
         .rf_read_addr_1_ID       (rf_read_addr_1_ID),
         .rf_read_addr_2_ID       (rf_read_addr_2_ID),
         .rf_write_addr_EX        (rf_write_addr_EX),
+        .rf_write_en_EX          (rf_write_en_EX),
+        .rf_write_addr_MEM       (rf_write_addr_MEM),
+        .rf_write_en_MEM         (rf_write_en_MEM),
         .is_load_EX              (is_load_EX),
         .pc_redirect_en_EX       (pc_redirect_en_EX),
         .memory_read_data_raw_MEM(memory_read_data_raw),
